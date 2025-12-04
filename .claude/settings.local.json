@@ -19,7 +19,9 @@
       "Bash(then echo \"DATABASE_URL is set\")",
       "Bash(else echo \".env file not found\")",
       "Bash(cat:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd complete email campaign management system\n\n- Authentication with NextAuth.js (login/register)\n- Multi-project support with isolated subscribers and campaigns\n- Email sending via Resend API with personalization ({{name}}, {{email}}, etc)\n- Open tracking via 1x1 tracking pixel\n- Click tracking via redirect URLs\n- Umami-inspired analytics dashboard\n- Campaign management (create, send, delete)\n- Subscriber management with CSV import\n- Real-time analytics with device/browser/geo tracking\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

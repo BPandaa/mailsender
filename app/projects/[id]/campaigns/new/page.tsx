@@ -230,7 +230,7 @@ export default function NewCampaign() {
                     </code>
                   </div>
                   <p className="text-xs text-blue-700 mt-2">
-                    Example: "Hi {"{{"} first_name {"}}"}, thanks for subscribing!"
+                    Example: &quot;Hi {"{{"} first_name {"}}"}, thanks for subscribing!&quot;
                   </p>
                 </div>
                 <p className="text-xs text-gray-500">

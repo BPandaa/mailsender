@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -26,11 +26,7 @@ export default function SubscribersPage() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
 
-  useEffect(() => {
-    fetchSubscribers();
-  }, [projectId]);
-
-  const fetchSubscribers = async () => {
+  const fetchSubscribers = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${projectId}/subscribers`);
       if (!response.ok) throw new Error("Failed to fetch subscribers");
@@ -41,7 +37,11 @@ export default function SubscribersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    fetchSubscribers();
+  }, [fetchSubscribers]);
 
   const handleAddSubscriber = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -8,7 +8,18 @@
       "Bash(npx prisma:*)",
       "Bash(if [ -d \"Mail/.claude\" ])",
       "Bash(then mv Mail/.claude mail-tracker/.claude)",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(npm run build:*)",
+      "WebSearch",
+      "Bash(npm run dev:*)",
+      "WebFetch(domain:localhost)",
+      "Bash(if [ -f .env ])",
+      "Bash(then echo \"DATABASE_URL is set\")",
+      "Bash(else echo \".env file not found\")",
+      "Bash(cat:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app:*)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(if [ -d \"Mail/.claude\" ])",
+      "Bash(then mv Mail/.claude mail-tracker/.claude)",
+      "Bash(fi)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

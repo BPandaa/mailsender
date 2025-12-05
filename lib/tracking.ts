@@ -1,4 +1,4 @@
-import UAParser from "ua-parser-js";
+import { UAParser } from "ua-parser-js";
 
 /**
  * Parse user agent string to extract device, browser, and OS information

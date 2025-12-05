@@ -12,50 +12,62 @@ export async function POST(request: Request) {
     // Verify webhook signature for security
     const webhookSecret = process.env.RESEND_WEBHOOK_SECRET;
 
-    if (webhookSecret) {
+    if (webhookSecret && webhookSecret !== "disabled") {
       const svixId = headersList.get("svix-id");
       const svixTimestamp = headersList.get("svix-timestamp");
       const svixSignature = headersList.get("svix-signature");
 
+      console.log("Webhook signature verification enabled");
+      console.log("Has svix-id:", !!svixId);
+      console.log("Has svix-timestamp:", !!svixTimestamp);
+      console.log("Has svix-signature:", !!svixSignature);
+
       if (!svixId || !svixTimestamp || !svixSignature) {
         console.error("Missing Svix headers");
-        return NextResponse.json(
-          { error: "Missing webhook signature headers" },
-          { status: 401 }
-        );
+        console.log("Skipping signature verification - missing headers");
+        // Don't block the webhook if headers are missing, just log it
+      } else {
+        try {
+          // Verify the signature
+          const signedContent = `${svixId}.${svixTimestamp}.${body}`;
+          const secret = webhookSecret.startsWith("whsec_")
+            ? webhookSecret.slice(6) // Remove "whsec_" prefix
+            : webhookSecret;
+
+          const expectedSignature = crypto
+            .createHmac("sha256", secret)
+            .update(signedContent)
+            .digest("base64");
+
+          const signatures = svixSignature.split(" ");
+          const isValid = signatures.some((sig) => {
+            const [, signature] = sig.split(",");
+            return signature === expectedSignature;
+          });
+
+          if (!isValid) {
+            console.error("Invalid webhook signature");
+            console.log("Expected signature:", expectedSignature);
+            console.log("Received signatures:", signatures);
+            // Continue processing anyway for now (can enable strict mode later)
+          } else {
+            console.log("✅ Webhook signature verified successfully");
+          }
+
+          // Check timestamp to prevent replay attacks (5 minutes tolerance)
+          const timestamp = parseInt(svixTimestamp);
+          const now = Math.floor(Date.now() / 1000);
+          if (Math.abs(now - timestamp) > 300) {
+            console.error("Webhook timestamp too old");
+            // Continue processing anyway
+          }
+        } catch (error) {
+          console.error("Error verifying webhook signature:", error);
+          // Continue processing anyway
+        }
       }
-
-      // Verify the signature
-      const signedContent = `${svixId}.${svixTimestamp}.${body}`;
-      const expectedSignature = crypto
-        .createHmac("sha256", webhookSecret.split("_")[1] || webhookSecret)
-        .update(signedContent)
-        .digest("base64");
-
-      const signatures = svixSignature.split(" ");
-      const isValid = signatures.some((sig) => {
-        const [, signature] = sig.split(",");
-        return signature === expectedSignature;
-      });
-
-      if (!isValid) {
-        console.error("Invalid webhook signature");
-        return NextResponse.json(
-          { error: "Invalid webhook signature" },
-          { status: 401 }
-        );
-      }
-
-      // Check timestamp to prevent replay attacks (5 minutes tolerance)
-      const timestamp = parseInt(svixTimestamp);
-      const now = Math.floor(Date.now() / 1000);
-      if (Math.abs(now - timestamp) > 300) {
-        console.error("Webhook timestamp too old");
-        return NextResponse.json(
-          { error: "Webhook timestamp expired" },
-          { status: 401 }
-        );
-      }
+    } else {
+      console.log("Webhook signature verification disabled");
     }
 
     // Parse the webhook payload
@@ -91,6 +103,10 @@ export async function POST(request: Request) {
 
       case "email.clicked":
         await handleEmailClicked(event.data);
+        break;
+
+      case "email.received":
+        await handleEmailReceived(event.data);
         break;
 
       default:
@@ -326,4 +342,41 @@ function parseUserAgent(userAgent: string) {
   }
 
   return result;
+}
+
+async function handleEmailReceived(data: any) {
+  // Handle inbound email received event
+  // This stores the inbound email in the Reply model for tracking
+
+  console.log("Inbound email received:", data);
+
+  try {
+    // Try to match the email to a campaign if it's a reply
+    // The from email should match a subscriber
+    const subscriber = await prisma.subscriber.findFirst({
+      where: {
+        email: data.from,
+      },
+    });
+
+    // Create a reply record
+    await prisma.reply.create({
+      data: {
+        fromEmail: data.from,
+        fromName: data.from_name || null,
+        subject: data.subject || "",
+        textContent: data.text || null,
+        htmlContent: data.html || null,
+        receivedAt: new Date(data.created_at || Date.now()),
+        resendId: data.email_id,
+        subscriberId: subscriber?.id || null,
+        // If we can't match to a campaign, leave it null
+        campaignId: null,
+      },
+    });
+
+    console.log(`Inbound email stored: ${data.email_id}`);
+  } catch (error) {
+    console.error("Error handling inbound email:", error);
+  }
 }

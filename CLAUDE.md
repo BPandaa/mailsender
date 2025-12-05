@@ -16,12 +16,11 @@ This is an email campaign management and analytics platform - a self-hosted alte
 
 **Analytics Tracking**:
 - Email delivery status (sent, failed, bounced)
-- Open tracking via Resend native tracking
-- Click tracking via Resend native tracking
+- Open tracking via Resend native tracking (timestamp only - no device/browser/location data)
+- Click tracking via Resend native tracking (includes IP, user agent, timestamp)
 - Reply tracking via Resend inbound email
 - Multiple opens/clicks per subscriber tracked
-- Geolocation (country/city) from webhook data
-- Device/browser info from webhook data
+- Device/browser/OS info (parsed from user agent for clicks only)
 - Per-link click analytics
 
 **Dashboard**: Umami-style analytics interface showing:
@@ -59,10 +58,13 @@ This is an email campaign management and analytics platform - a self-hosted alte
 ### Email Tracking Mechanism
 
 **Resend Native Tracking**:
-- All tracking is handled by Resend automatically
-- No custom tracking pixels or link rewriting needed
-- Webhook events provide open and click data
-- Data includes timestamp, IP, user agent, device info, and geolocation
+- All tracking is handled by Resend automatically at the domain level
+- No custom tracking pixels or link rewriting needed in code
+- Tracking must be enabled for your domain in Resend dashboard or via API
+- Webhook events provide open and click data with different levels of detail:
+  - **email.opened**: Only provides email metadata (no device/browser/IP/location data)
+  - **email.clicked**: Provides IP address, user agent, link URL, and timestamp
+  - Device/browser/OS info is parsed from user agent string for click events
 
 ### API Routes
 

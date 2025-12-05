@@ -41,7 +41,9 @@ async function getCampaignAnalytics(campaignId: string) {
   const totalUniqueOpens = allOpens.filter((open) => open.isUnique);
 
   // Calculate stats
-  const totalSent = emailEvents.filter((e) => e.status === "sent").length;
+  const totalSent = emailEvents.length; // All email events created
+  const emailsWithOpens = new Set(allOpens.map((o) => o.emailEventId)).size; // Emails that have been opened (delivered)
+  const unopened = totalSent - emailsWithOpens; // Emails sent but not opened
   const uniqueOpens = new Set(realUniqueOpens.map((o) => o.emailEventId)).size;
   const uniqueClicks = new Set(allClicks.map((c) => c.emailEventId)).size;
 
@@ -84,6 +86,8 @@ async function getCampaignAnalytics(campaignId: string) {
 
   return {
     totalSent,
+    emailsWithOpens,
+    unopened,
     uniqueOpens,
     uniqueClicks,
     realUniqueOpens,
@@ -108,45 +112,36 @@ export default async function CampaignAnalytics({
   const campaign = await getCampaign(id, campaignId);
   const analytics = await getCampaignAnalytics(campaignId);
 
-  const openRate =
-    analytics.totalSent > 0
-      ? ((analytics.uniqueOpens / analytics.totalSent) * 100).toFixed(1)
-      : "0";
-  const clickRate =
-    analytics.totalSent > 0
-      ? ((analytics.uniqueClicks / analytics.totalSent) * 100).toFixed(1)
-      : "0";
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-black border-b border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
                 href={`/projects/${id}/campaigns`}
-                className="text-gray-600 hover:text-gray-900 transition"
+                className="text-zinc-400 hover:text-white transition"
               >
                 ← Campaigns
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-white">
                   {campaign.name}
                 </h1>
-                <p className="text-gray-600 text-sm mt-1">{campaign.subject}</p>
+                <p className="text-zinc-400 text-sm mt-1">{campaign.subject}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                   campaign.status === "sent"
-                    ? "bg-green-100 text-green-800"
+                    ? "bg-green-500/10 text-green-400 border border-green-500/20"
                     : campaign.status === "sending"
-                    ? "bg-blue-100 text-blue-800"
+                    ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
                     : campaign.status === "failed"
-                    ? "bg-red-100 text-red-800"
-                    : "bg-gray-100 text-gray-800"
+                    ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                    : "bg-zinc-800 text-zinc-300 border border-zinc-700"
                 }`}
               >
                 {campaign.status}
@@ -169,99 +164,65 @@ export default async function CampaignAnalytics({
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Sent</div>
-            <div className="text-3xl font-bold text-gray-900">
-              {analytics.totalSent}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <div className="text-zinc-400 text-sm mb-1">Sent (Delivered)</div>
+            <div className="text-3xl font-bold text-white">
+              {analytics.emailsWithOpens}
+            </div>
+            <div className="text-xs text-zinc-500 mt-1">
+              Emails with opens
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Unique Opens</div>
-            <div className="text-3xl font-bold text-gray-900">
+          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <div className="text-zinc-400 text-sm mb-1">Unopened</div>
+            <div className="text-3xl font-bold text-white">
+              {analytics.unopened}
+            </div>
+            <div className="text-xs text-zinc-500 mt-1">
+              Sent but not opened
+            </div>
+          </div>
+          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <div className="text-zinc-400 text-sm mb-1">Unique Opens</div>
+            <div className="text-3xl font-bold text-white">
               {analytics.uniqueOpens}
             </div>
-            <div className="text-xs text-gray-500 mt-1">
-              {analytics.totalUniqueOpens.length} total ({analytics.allOpens.length - analytics.totalUniqueOpens.length} bots/duplicates)
+            <div className="text-xs text-zinc-500 mt-1">
+              {analytics.totalUniqueOpens.length} total ({analytics.allOpens.length - analytics.totalUniqueOpens.length} bots)
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Open Rate</div>
-            <div className="text-3xl font-bold text-gray-900">{openRate}%</div>
-          </div>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Clicks</div>
-            <div className="text-3xl font-bold text-gray-900">
+          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <div className="text-zinc-400 text-sm mb-1">Clicks</div>
+            <div className="text-3xl font-bold text-white">
               {analytics.uniqueClicks}
             </div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-zinc-500 mt-1">
               {analytics.allClicks.length} total
             </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Click Rate</div>
-            <div className="text-3xl font-bold text-gray-900">{clickRate}%</div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Top Countries */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="font-semibold text-gray-900">Top Countries</h3>
-            </div>
-            <div className="p-6">
-              {Object.keys(analytics.countryCounts).length === 0 ? (
-                <p className="text-gray-600 text-sm">No data yet</p>
-              ) : (
-                <div className="space-y-3">
-                  {Object.entries(analytics.countryCounts)
-                    .sort(([, a], [, b]) => b - a)
-                    .slice(0, 5)
-                    .map(([country, count]) => (
-                      <div key={country} className="flex items-center justify-between">
-                        <span className="text-gray-900">{country}</span>
-                        <div className="flex items-center gap-3">
-                          <div className="w-32 bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-blue-600 h-2 rounded-full"
-                              style={{
-                                width: `${
-                                  (count / analytics.realUniqueOpens.length) * 100
-                                }%`,
-                              }}
-                            />
-                          </div>
-                          <span className="text-gray-600 text-sm w-12 text-right">
-                            {count}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Top Devices */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="font-semibold text-gray-900">Devices</h3>
+          <div className="bg-zinc-900 rounded-lg border border-zinc-800">
+            <div className="p-6 border-b border-zinc-800">
+              <h3 className="font-semibold text-white">Devices</h3>
             </div>
             <div className="p-6">
               {Object.keys(analytics.deviceCounts).length === 0 ? (
-                <p className="text-gray-600 text-sm">No data yet</p>
+                <p className="text-zinc-400 text-sm">No data yet</p>
               ) : (
                 <div className="space-y-3">
                   {Object.entries(analytics.deviceCounts)
                     .sort(([, a], [, b]) => b - a)
                     .map(([device, count]) => (
                       <div key={device} className="flex items-center justify-between">
-                        <span className="text-gray-900 capitalize">{device}</span>
+                        <span className="text-white capitalize">{device}</span>
                         <div className="flex items-center gap-3">
-                          <div className="w-32 bg-gray-200 rounded-full h-2">
+                          <div className="w-32 bg-zinc-800 rounded-full h-2">
                             <div
-                              className="bg-blue-600 h-2 rounded-full"
+                              className="bg-white h-2 rounded-full"
                               style={{
                                 width: `${
                                   (count / analytics.realUniqueOpens.length) * 100
@@ -269,7 +230,7 @@ export default async function CampaignAnalytics({
                               }}
                             />
                           </div>
-                          <span className="text-gray-600 text-sm w-12 text-right">
+                          <span className="text-zinc-400 text-sm w-12 text-right">
                             {count}
                           </span>
                         </div>
@@ -281,13 +242,13 @@ export default async function CampaignAnalytics({
           </div>
 
           {/* Top Browsers */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="font-semibold text-gray-900">Browsers</h3>
+          <div className="bg-zinc-900 rounded-lg border border-zinc-800">
+            <div className="p-6 border-b border-zinc-800">
+              <h3 className="font-semibold text-white">Browsers</h3>
             </div>
             <div className="p-6">
               {Object.keys(analytics.browserCounts).length === 0 ? (
-                <p className="text-gray-600 text-sm">No data yet</p>
+                <p className="text-zinc-400 text-sm">No data yet</p>
               ) : (
                 <div className="space-y-3">
                   {Object.entries(analytics.browserCounts)
@@ -295,11 +256,11 @@ export default async function CampaignAnalytics({
                     .slice(0, 5)
                     .map(([browser, count]) => (
                       <div key={browser} className="flex items-center justify-between">
-                        <span className="text-gray-900">{browser}</span>
+                        <span className="text-white">{browser}</span>
                         <div className="flex items-center gap-3">
-                          <div className="w-32 bg-gray-200 rounded-full h-2">
+                          <div className="w-32 bg-zinc-800 rounded-full h-2">
                             <div
-                              className="bg-blue-600 h-2 rounded-full"
+                              className="bg-white h-2 rounded-full"
                               style={{
                                 width: `${
                                   (count / analytics.realUniqueOpens.length) * 100
@@ -307,7 +268,7 @@ export default async function CampaignAnalytics({
                               }}
                             />
                           </div>
-                          <span className="text-gray-600 text-sm w-12 text-right">
+                          <span className="text-zinc-400 text-sm w-12 text-right">
                             {count}
                           </span>
                         </div>
@@ -319,13 +280,13 @@ export default async function CampaignAnalytics({
           </div>
 
           {/* Top Links */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="font-semibold text-gray-900">Top Links</h3>
+          <div className="bg-zinc-900 rounded-lg border border-zinc-800">
+            <div className="p-6 border-b border-zinc-800">
+              <h3 className="font-semibold text-white">Top Links</h3>
             </div>
             <div className="p-6">
               {Object.keys(analytics.urlCounts).length === 0 ? (
-                <p className="text-gray-600 text-sm">No clicks yet</p>
+                <p className="text-zinc-400 text-sm">No clicks yet</p>
               ) : (
                 <div className="space-y-3">
                   {Object.entries(analytics.urlCounts)
@@ -333,10 +294,10 @@ export default async function CampaignAnalytics({
                     .slice(0, 5)
                     .map(([url, count]) => (
                       <div key={url} className="flex items-center justify-between">
-                        <span className="text-gray-900 text-sm truncate flex-1">
+                        <span className="text-white text-sm truncate flex-1">
                           {url.length > 40 ? url.substring(0, 40) + "..." : url}
                         </span>
-                        <span className="text-gray-600 text-sm ml-3">{count}</span>
+                        <span className="text-zinc-400 text-sm ml-3">{count}</span>
                       </div>
                     ))}
                 </div>

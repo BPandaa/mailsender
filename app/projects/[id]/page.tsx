@@ -70,34 +70,25 @@ export default async function ProjectDetail({
   const project = await getProject(id);
   const stats = await getProjectStats(id);
 
-  const openRate =
-    stats.totalSent > 0
-      ? ((stats.totalOpens / stats.totalSent) * 100).toFixed(1)
-      : "0";
-  const clickRate =
-    stats.totalSent > 0
-      ? ((stats.totalClicks / stats.totalSent) * 100).toFixed(1)
-      : "0";
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-black border-b border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
                 href="/"
-                className="text-gray-600 hover:text-gray-900 transition"
+                className="text-zinc-400 hover:text-white transition"
               >
                 ← Projects
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-white">
                   {project.name}
                 </h1>
                 {project.description && (
-                  <p className="text-gray-600 text-sm mt-1">
+                  <p className="text-zinc-400 text-sm mt-1">
                     {project.description}
                   </p>
                 )}
@@ -111,26 +102,28 @@ export default async function ProjectDetail({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Subscribers</div>
-            <div className="text-3xl font-bold text-gray-900">
+          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <div className="text-zinc-400 text-sm mb-1">Subscribers</div>
+            <div className="text-3xl font-bold text-white">
               {project._count.subscribers}
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Campaigns</div>
-            <div className="text-3xl font-bold text-gray-900">
+          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <div className="text-zinc-400 text-sm mb-1">Campaigns</div>
+            <div className="text-3xl font-bold text-white">
               {project._count.campaigns}
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Open Rate</div>
-            <div className="text-3xl font-bold text-gray-900">{openRate}%</div>
+          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <div className="text-zinc-400 text-sm mb-1">Total Sent</div>
+            <div className="text-3xl font-bold text-white">
+              {stats.totalSent}
+            </div>
           </div>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Click Rate</div>
-            <div className="text-3xl font-bold text-gray-900">
-              {clickRate}%
+          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <div className="text-zinc-400 text-sm mb-1">Total Opens</div>
+            <div className="text-3xl font-bold text-white">
+              {stats.totalOpens}
             </div>
           </div>
         </div>
@@ -139,42 +132,42 @@ export default async function ProjectDetail({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Link
             href={`/projects/${id}/subscribers`}
-            className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition group"
+            className="bg-zinc-900 p-6 rounded-lg border border-zinc-800 hover:border-zinc-700 transition group"
           >
-            <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
+            <h3 className="font-semibold text-white mb-2 group-hover:text-zinc-300">
               Manage Subscribers →
             </h3>
-            <p className="text-gray-600 text-sm">
+            <p className="text-zinc-400 text-sm">
               Add subscribers manually or import from CSV
             </p>
           </Link>
           <Link
             href={`/projects/${id}/campaigns`}
-            className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition group"
+            className="bg-zinc-900 p-6 rounded-lg border border-zinc-800 hover:border-zinc-700 transition group"
           >
-            <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
+            <h3 className="font-semibold text-white mb-2 group-hover:text-zinc-300">
               View Campaigns →
             </h3>
-            <p className="text-gray-600 text-sm">
+            <p className="text-zinc-400 text-sm">
               Create and manage email campaigns
             </p>
           </Link>
         </div>
 
         {/* Recent Campaigns */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">
+        <div className="bg-zinc-900 rounded-lg border border-zinc-800">
+          <div className="p-6 border-b border-zinc-800">
+            <h2 className="text-lg font-semibold text-white">
               Recent Campaigns
             </h2>
           </div>
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-zinc-800">
             {stats.recentCampaigns.length === 0 ? (
-              <div className="p-6 text-center text-gray-600">
+              <div className="p-6 text-center text-zinc-400">
                 No campaigns yet.{" "}
                 <Link
                   href={`/projects/${id}/campaigns/new`}
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-white hover:text-zinc-300 font-medium"
                 >
                   Create your first campaign
                 </Link>
@@ -184,26 +177,26 @@ export default async function ProjectDetail({
                 <Link
                   key={campaign.id}
                   href={`/projects/${id}/campaigns/${campaign.id}`}
-                  className="p-6 flex items-center justify-between hover:bg-gray-50 transition"
+                  className="p-6 flex items-center justify-between hover:bg-zinc-800/50 transition"
                 >
                   <div>
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-white">
                       {campaign.name}
                     </h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-zinc-400 mt-1">
                       {campaign.subject}
                     </p>
                   </div>
                   <div className="flex items-center gap-6">
                     <div className="text-right">
-                      <div className="text-sm text-gray-600">Status</div>
-                      <div className="text-sm font-medium text-gray-900 capitalize">
+                      <div className="text-sm text-zinc-400">Status</div>
+                      <div className="text-sm font-medium text-white capitalize">
                         {campaign.status}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-gray-600">Sent</div>
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm text-zinc-400">Sent</div>
+                      <div className="text-sm font-medium text-white">
                         {campaign._count.emailEvents}
                       </div>
                     </div>

@@ -136,37 +136,37 @@ export default function SubscribersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading subscribers...</div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-zinc-400">Loading subscribers...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-black border-b border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
                 href={`/projects/${projectId}`}
-                className="text-gray-600 hover:text-gray-900 transition"
+                className="text-zinc-400 hover:text-white transition"
               >
                 ← Back
               </Link>
-              <h1 className="text-2xl font-bold text-gray-900">Subscribers</h1>
+              <h1 className="text-2xl font-bold text-white">Subscribers</h1>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowImportForm(true)}
-                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
+                className="bg-zinc-800 text-zinc-300 px-4 py-2 rounded-lg hover:bg-zinc-700 transition"
               >
                 Import CSV
               </button>
               <button
                 onClick={() => setShowAddForm(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                className="bg-white text-black px-4 py-2 rounded-lg hover:bg-zinc-200 transition font-medium"
               >
                 Add Subscriber
               </button>
@@ -178,28 +178,28 @@ export default function SubscribersPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded mb-6">
             {error}
           </div>
         )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Total Subscribers</div>
-            <div className="text-3xl font-bold text-gray-900">
+          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <div className="text-zinc-400 text-sm mb-1">Total Subscribers</div>
+            <div className="text-3xl font-bold text-white">
               {subscribers.length}
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Active</div>
-            <div className="text-3xl font-bold text-gray-900">
+          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <div className="text-zinc-400 text-sm mb-1">Active</div>
+            <div className="text-3xl font-bold text-white">
               {subscribers.filter((s) => s.subscribed).length}
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Unsubscribed</div>
-            <div className="text-3xl font-bold text-gray-900">
+          <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <div className="text-zinc-400 text-sm mb-1">Unsubscribed</div>
+            <div className="text-3xl font-bold text-white">
               {subscribers.filter((s) => !s.subscribed).length}
             </div>
           </div>
@@ -207,8 +207,8 @@ export default function SubscribersPage() {
 
         {/* Add Subscriber Form */}
         {showAddForm && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-            <h3 className="font-semibold text-gray-900 mb-4">
+          <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-6 mb-6">
+            <h3 className="font-semibold text-white mb-4">
               Add New Subscriber
             </h3>
             <form onSubmit={handleAddSubscriber} className="space-y-4">
@@ -220,7 +220,7 @@ export default function SubscribersPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-4 py-2 bg-black border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-white focus:border-transparent"
                   placeholder="Email address"
                 />
                 <input
@@ -229,21 +229,21 @@ export default function SubscribersPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-4 py-2 bg-black border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-white focus:border-transparent"
                   placeholder="Name (optional)"
                 />
               </div>
               <div className="flex gap-3">
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                  className="bg-white text-black px-4 py-2 rounded-lg hover:bg-zinc-200 transition font-medium"
                 >
                   Add Subscriber
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowAddForm(false)}
-                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
+                  className="bg-zinc-800 text-zinc-300 px-4 py-2 rounded-lg hover:bg-zinc-700 transition"
                 >
                   Cancel
                 </button>
@@ -254,11 +254,11 @@ export default function SubscribersPage() {
 
         {/* Import CSV Form */}
         {showImportForm && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-            <h3 className="font-semibold text-gray-900 mb-4">
+          <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-6 mb-6">
+            <h3 className="font-semibold text-white mb-4">
               Import from CSV
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-zinc-400 mb-4">
               Upload a CSV file with columns: email (required), name (optional)
             </p>
             <form onSubmit={handleImportCsv} className="space-y-4">
@@ -266,20 +266,20 @@ export default function SubscribersPage() {
                 type="file"
                 accept=".csv"
                 onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
-                className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100"
+                className="block w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-white file:text-black hover:file:bg-zinc-200 file:font-medium"
               />
               <div className="flex gap-3">
                 <button
                   type="submit"
                   disabled={!csvFile || importing}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-white text-black px-4 py-2 rounded-lg hover:bg-zinc-200 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
                   {importing ? "Importing..." : "Import"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowImportForm(false)}
-                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
+                  className="bg-zinc-800 text-zinc-300 px-4 py-2 rounded-lg hover:bg-zinc-700 transition"
                 >
                   Cancel
                 </button>
@@ -289,62 +289,62 @@ export default function SubscribersPage() {
         )}
 
         {/* Subscribers List */}
-        <div className="bg-white rounded-lg border border-gray-200">
+        <div className="bg-zinc-900 rounded-lg border border-zinc-800">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-black border-b border-zinc-800">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                     Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                     Added
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-zinc-400 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-zinc-800">
                 {subscribers.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-gray-600">
+                    <td colSpan={5} className="px-6 py-8 text-center text-zinc-400">
                       No subscribers yet. Add one to get started.
                     </td>
                   </tr>
                 ) : (
                   subscribers.map((subscriber) => (
-                    <tr key={subscriber.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                    <tr key={subscriber.id} className="hover:bg-zinc-800/50">
+                      <td className="px-6 py-4 text-sm text-white">
                         {subscriber.email}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="px-6 py-4 text-sm text-zinc-400">
                         {subscriber.name || "-"}
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             subscriber.subscribed
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-800"
+                              ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                              : "bg-zinc-800 text-zinc-400 border border-zinc-700"
                           }`}
                         >
                           {subscriber.subscribed ? "Active" : "Unsubscribed"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="px-6 py-4 text-sm text-zinc-400">
                         {new Date(subscriber.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-sm text-right">
                         <button
                           onClick={() => handleDelete(subscriber.id)}
-                          className="text-red-600 hover:text-red-700 font-medium"
+                          className="text-red-400 hover:text-red-300 font-medium"
                         >
                           Delete
                         </button>

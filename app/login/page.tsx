@@ -40,17 +40,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-black flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Mail Tracker</h1>
-          <p className="text-gray-600">Sign in to your account</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Mail Tracker</h1>
+          <p className="text-zinc-400">Sign in to your account</p>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-8">
+        <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded text-sm">
                 {error}
               </div>
             )}
@@ -58,7 +58,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-zinc-300 mb-2"
               >
                 Email
               </label>
@@ -70,7 +70,7 @@ export default function LoginPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-white focus:border-transparent"
                 placeholder="you@example.com"
               />
             </div>
@@ -78,7 +78,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-zinc-300 mb-2"
               >
                 Password
               </label>
@@ -90,7 +90,7 @@ export default function LoginPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-white focus:border-transparent"
                 placeholder="••••••••"
               />
             </div>
@@ -98,23 +98,11 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-white text-black px-4 py-2 rounded-lg hover:bg-zinc-200 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/register"
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
-                Create one
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>

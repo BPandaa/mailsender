@@ -1,8 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+
+interface Template {
+  id: string;
+  name: string;
+  subject: string | null;
+  html: string;
+  signature: string | null;
+}
 
 export default function NewCampaign() {
   const params = useParams();
@@ -10,13 +18,50 @@ export default function NewCampaign() {
   const projectId = params.id as string;
 
   const [loading, setLoading] = useState(false);
+  const [loadingTemplates, setLoadingTemplates] = useState(true);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     subject: "",
     content: "",
     fromEmail: "",
+    templateId: "",
   });
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const fetchTemplates = async () => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}/templates`);
+      if (response.ok) {
+        const data = await response.json();
+        setTemplates(data.templates || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch templates:", err);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+
+  const handleTemplateSelect = (templateId: string) => {
+    const template = templates.find((t) => t.id === templateId);
+    if (template) {
+      setFormData({
+        ...formData,
+        templateId: template.id,
+        subject: template.subject || formData.subject,
+        content:
+          template.html +
+          (template.signature ? `\n\n${template.signature}` : ""),
+      });
+    } else {
+      setFormData({ ...formData, templateId: "" });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,6 +189,41 @@ export default function NewCampaign() {
                 className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-white focus:border-transparent"
                 placeholder="Monthly Newsletter, Product Launch, etc."
               />
+            </div>
+
+            {/* Template Selector */}
+            <div>
+              <label
+                htmlFor="template"
+                className="block text-sm font-medium text-zinc-300 mb-2"
+              >
+                Use Template (Optional)
+              </label>
+              <select
+                id="template"
+                value={formData.templateId}
+                onChange={(e) => handleTemplateSelect(e.target.value)}
+                className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-white focus:ring-2 focus:ring-white focus:border-transparent"
+                disabled={loadingTemplates}
+              >
+                <option value="">Start from scratch</option>
+                {templates.map((template) => (
+                  <option key={template.id} value={template.id}>
+                    {template.name}
+                  </option>
+                ))}
+              </select>
+              {templates.length === 0 && !loadingTemplates && (
+                <p className="mt-1 text-xs text-zinc-400">
+                  No templates available.{" "}
+                  <Link
+                    href={`/projects/${projectId}/templates/new`}
+                    className="text-white hover:text-zinc-300"
+                  >
+                    Create one first
+                  </Link>
+                </p>
+              )}
             </div>
 
             <div>

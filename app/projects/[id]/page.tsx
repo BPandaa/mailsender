@@ -75,24 +75,22 @@ export default async function ProjectDetail({
       {/* Header */}
       <header className="bg-black border-b border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/"
-                className="text-zinc-400 hover:text-white transition"
-              >
-                ← Projects
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-white">
-                  {project.name}
-                </h1>
-                {project.description && (
-                  <p className="text-zinc-400 text-sm mt-1">
-                    {project.description}
-                  </p>
-                )}
-              </div>
+          <div className="flex items-start gap-4">
+            <Link
+              href="/"
+              className="text-zinc-400 hover:text-white transition pt-1"
+            >
+              ← Projects
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-white">
+                {project.name}
+              </h1>
+              {project.description && (
+                <p className="text-zinc-400 text-sm mt-1">
+                  {project.description}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -129,7 +127,7 @@ export default async function ProjectDetail({
         </div>
 
         {/* Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <Link
             href={`/projects/${id}/subscribers`}
             className="bg-zinc-900 p-6 rounded-lg border border-zinc-800 hover:border-zinc-700 transition group"
@@ -139,6 +137,17 @@ export default async function ProjectDetail({
             </h3>
             <p className="text-zinc-400 text-sm">
               Add subscribers manually or import from CSV
+            </p>
+          </Link>
+          <Link
+            href={`/projects/${id}/templates`}
+            className="bg-zinc-900 p-6 rounded-lg border border-zinc-800 hover:border-zinc-700 transition group"
+          >
+            <h3 className="font-semibold text-white mb-2 group-hover:text-zinc-300">
+              Email Templates →
+            </h3>
+            <p className="text-zinc-400 text-sm">
+              Create reusable email templates for campaigns
             </p>
           </Link>
           <Link

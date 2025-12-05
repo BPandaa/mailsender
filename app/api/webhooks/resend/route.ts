@@ -227,27 +227,28 @@ async function handleEmailOpened(data: any) {
 
   const isUnique = existingOpens.length === 0;
 
-  // Detect if it's a bot (Resend provides this info)
-  const isBot = data.is_bot || false;
+  // NOTE: Resend's email.opened event does NOT include device/browser/location data
+  // Only basic email metadata is provided in the webhook payload
+  // See: https://resend.com/docs/dashboard/webhooks/event-types
 
   // Create open event
   await prisma.openEvent.create({
     data: {
       emailEventId: emailEvent.id,
-      openedAt: new Date(data.opened_at || data.created_at),
-      ipAddress: data.ip_address || null,
-      userAgent: data.user_agent || null,
-      country: data.location?.country || null,
-      city: data.location?.city || null,
-      device: data.device?.type || null,
-      browser: data.browser?.name || null,
-      os: data.os?.name || null,
+      openedAt: new Date(data.created_at),
+      ipAddress: null, // Not provided by Resend for email.opened
+      userAgent: null, // Not provided by Resend for email.opened
+      country: null, // Not provided by Resend for email.opened
+      city: null, // Not provided by Resend for email.opened
+      device: null, // Not provided by Resend for email.opened
+      browser: null, // Not provided by Resend for email.opened
+      os: null, // Not provided by Resend for email.opened
       isUnique,
-      isBot,
+      isBot: false, // Not provided by Resend for email.opened
     },
   });
 
-  console.log(`Email opened: ${data.email_id} (unique: ${isUnique}, bot: ${isBot})`);
+  console.log(`Email opened: ${data.email_id} (unique: ${isUnique})`);
 }
 
 async function handleEmailClicked(data: any) {
@@ -261,21 +262,68 @@ async function handleEmailClicked(data: any) {
     return;
   }
 
+  // Resend provides click data in a nested 'click' object
+  // See: https://resend.com/docs/dashboard/webhooks/event-types
+  const clickData = data.click || {};
+
+  // Parse user agent to extract device/browser/os info
+  const userAgent = clickData.userAgent || "";
+  const deviceInfo = parseUserAgent(userAgent);
+
   // Create click event
   await prisma.clickEvent.create({
     data: {
       emailEventId: emailEvent.id,
-      linkUrl: data.link || data.url || "",
-      clickedAt: new Date(data.clicked_at || data.created_at),
-      ipAddress: data.ip_address || null,
-      userAgent: data.user_agent || null,
-      country: data.location?.country || null,
-      city: data.location?.city || null,
-      device: data.device?.type || null,
-      browser: data.browser?.name || null,
-      os: data.os?.name || null,
+      linkUrl: clickData.link || "",
+      clickedAt: new Date(clickData.timestamp || data.created_at),
+      ipAddress: clickData.ipAddress || null,
+      userAgent: userAgent || null,
+      country: null, // Resend doesn't provide geolocation for clicks
+      city: null, // Resend doesn't provide geolocation for clicks
+      device: deviceInfo.device || null,
+      browser: deviceInfo.browser || null,
+      os: deviceInfo.os || null,
     },
   });
 
-  console.log(`Email clicked: ${data.email_id} - Link: ${data.link || data.url}`);
+  console.log(`Email clicked: ${data.email_id} - Link: ${clickData.link || "unknown"}`);
+}
+
+// Helper function to parse user agent string
+function parseUserAgent(userAgent: string) {
+  if (!userAgent) {
+    return { device: null, browser: null, os: null };
+  }
+
+  // Basic user agent parsing
+  const result = {
+    device: null as string | null,
+    browser: null as string | null,
+    os: null as string | null,
+  };
+
+  // Detect OS
+  if (userAgent.includes("Windows")) result.os = "Windows";
+  else if (userAgent.includes("Mac OS X")) result.os = "macOS";
+  else if (userAgent.includes("Linux")) result.os = "Linux";
+  else if (userAgent.includes("Android")) result.os = "Android";
+  else if (userAgent.includes("iOS") || userAgent.includes("iPhone") || userAgent.includes("iPad")) result.os = "iOS";
+
+  // Detect Browser
+  if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) result.browser = "Chrome";
+  else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) result.browser = "Safari";
+  else if (userAgent.includes("Firefox")) result.browser = "Firefox";
+  else if (userAgent.includes("Edg")) result.browser = "Edge";
+  else if (userAgent.includes("Opera") || userAgent.includes("OPR")) result.browser = "Opera";
+
+  // Detect Device Type
+  if (userAgent.includes("Mobile") || userAgent.includes("Android") || userAgent.includes("iPhone")) {
+    result.device = "mobile";
+  } else if (userAgent.includes("Tablet") || userAgent.includes("iPad")) {
+    result.device = "tablet";
+  } else {
+    result.device = "desktop";
+  }
+
+  return result;
 }

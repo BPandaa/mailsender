@@ -39,18 +39,18 @@ export default function NewProject() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-black border-b border-zinc-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="text-gray-600 hover:text-gray-900 transition"
+              className="text-zinc-400 hover:text-white transition"
             >
               ← Back
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-white">
               Create New Project
             </h1>
           </div>
@@ -59,10 +59,10 @@ export default function NewProject() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              <div className="bg-red-950 border border-red-800 text-red-300 px-4 py-3 rounded">
                 {error}
               </div>
             )}
@@ -70,7 +70,7 @@ export default function NewProject() {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-zinc-300 mb-2"
               >
                 Project Name
               </label>
@@ -82,7 +82,7 @@ export default function NewProject() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-zinc-600 focus:border-transparent"
                 placeholder="Personal Brand, Klarifai, etc."
               />
             </div>
@@ -90,7 +90,7 @@ export default function NewProject() {
             <div>
               <label
                 htmlFor="description"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-zinc-300 mb-2"
               >
                 Description (Optional)
               </label>
@@ -101,7 +101,7 @@ export default function NewProject() {
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-zinc-600 focus:border-transparent"
                 placeholder="What is this project for?"
               />
             </div>
@@ -110,13 +110,13 @@ export default function NewProject() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-white text-black px-6 py-2 rounded-lg hover:bg-zinc-200 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
                 {loading ? "Creating..." : "Create Project"}
               </button>
               <Link
                 href="/"
-                className="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-200 transition"
+                className="bg-zinc-800 text-white px-6 py-2 rounded-lg hover:bg-zinc-700 transition"
               >
                 Cancel
               </Link>

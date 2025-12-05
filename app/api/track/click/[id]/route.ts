@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { parseUserAgent, getGeolocationIPAPI } from "@/lib/tracking";
 
 // GET /api/track/click/[id] - Track link click and redirect
 export async function GET(
@@ -19,43 +20,25 @@ export async function GET(
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "";
     const userAgent = request.headers.get("user-agent") || "";
 
-    // Parse user agent for device/browser/OS info
-    let device = "Unknown";
-    let browser = "Unknown";
-    let os = "Unknown";
+    // Parse user agent using ua-parser-js for accurate detection
+    const { device, browser, os } = parseUserAgent(userAgent);
 
-    if (userAgent) {
-      if (userAgent.includes("Mobile")) device = "Mobile";
-      else if (userAgent.includes("Tablet")) device = "Tablet";
-      else device = "Desktop";
-
-      if (userAgent.includes("Chrome")) browser = "Chrome";
-      else if (userAgent.includes("Firefox")) browser = "Firefox";
-      else if (userAgent.includes("Safari")) browser = "Safari";
-      else if (userAgent.includes("Edge")) browser = "Edge";
-
-      if (userAgent.includes("Windows")) os = "Windows";
-      else if (userAgent.includes("Mac")) os = "macOS";
-      else if (userAgent.includes("Linux")) os = "Linux";
-      else if (userAgent.includes("Android")) os = "Android";
-      else if (userAgent.includes("iOS")) os = "iOS";
-    }
-
-    // Record click event (don't await to make redirect faster)
-    prisma.clickEvent
-      .create({
-        data: {
-          emailEventId,
-          linkUrl: targetUrl,
-          ipAddress: ip,
-          userAgent,
-          device,
-          browser,
-          os,
-          // Geolocation can be added later
-          country: null,
-          city: null,
-        },
+    // Get geolocation and record click event (don't await to make redirect faster)
+    getGeolocationIPAPI(ip)
+      .then((geolocation) => {
+        return prisma.clickEvent.create({
+          data: {
+            emailEventId,
+            linkUrl: targetUrl,
+            ipAddress: ip,
+            userAgent,
+            device,
+            browser,
+            os,
+            country: geolocation.country,
+            city: geolocation.city,
+          },
+        });
       })
       .catch((error) => {
         console.error("Track click error:", error);

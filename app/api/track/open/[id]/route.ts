@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { parseUserAgent, getGeolocationIPAPI } from "@/lib/tracking";
 
 // GET /api/track/open/[id] - Track email open
 export async function GET(
@@ -15,28 +16,11 @@ export async function GET(
     const userAgent = request.headers.get("user-agent") || "";
     console.log(`IP: ${ip}, User-Agent: ${userAgent}`);
 
-    // Parse user agent for device/browser/OS info
-    let device = "Unknown";
-    let browser = "Unknown";
-    let os = "Unknown";
+    // Parse user agent using ua-parser-js for accurate detection
+    const { device, browser, os } = parseUserAgent(userAgent);
 
-    if (userAgent) {
-      // Simple user agent parsing (you can enhance this with ua-parser-js)
-      if (userAgent.includes("Mobile")) device = "Mobile";
-      else if (userAgent.includes("Tablet")) device = "Tablet";
-      else device = "Desktop";
-
-      if (userAgent.includes("Chrome")) browser = "Chrome";
-      else if (userAgent.includes("Firefox")) browser = "Firefox";
-      else if (userAgent.includes("Safari")) browser = "Safari";
-      else if (userAgent.includes("Edge")) browser = "Edge";
-
-      if (userAgent.includes("Windows")) os = "Windows";
-      else if (userAgent.includes("Mac")) os = "macOS";
-      else if (userAgent.includes("Linux")) os = "Linux";
-      else if (userAgent.includes("Android")) os = "Android";
-      else if (userAgent.includes("iOS")) os = "iOS";
-    }
+    // Get geolocation from IP (async, but don't block the pixel response)
+    const geolocation = await getGeolocationIPAPI(ip);
 
     // Record open event
     const openEvent = await prisma.openEvent.create({
@@ -47,13 +31,12 @@ export async function GET(
         device,
         browser,
         os,
-        // Geolocation can be added later with a geolocation service
-        country: null,
-        city: null,
+        country: geolocation.country,
+        city: geolocation.city,
       },
     });
 
-    console.log(`✅ Open event recorded: ${openEvent.id} for ${device}/${browser}`);
+    console.log(`✅ Open event recorded: ${openEvent.id} for ${device}/${browser} from ${geolocation.city}, ${geolocation.country}`);
 
     // Return 1x1 transparent GIF (minimal base64-encoded GIF)
     const pixel = Buffer.from(

@@ -98,18 +98,18 @@ export default function NewCampaign() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-black border-b border-zinc-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <Link
               href={`/projects/${projectId}/campaigns`}
-              className="text-gray-600 hover:text-gray-900 transition"
+              className="text-zinc-400 hover:text-white transition"
             >
               ← Back
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-white">
               Create New Campaign
             </h1>
           </div>
@@ -118,10 +118,10 @@ export default function NewCampaign() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-6">
           <form className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded">
                 {error}
               </div>
             )}
@@ -129,7 +129,7 @@ export default function NewCampaign() {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-zinc-300 mb-2"
               >
                 Campaign Name
               </label>
@@ -141,7 +141,7 @@ export default function NewCampaign() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-white focus:border-transparent"
                 placeholder="Monthly Newsletter, Product Launch, etc."
               />
             </div>
@@ -149,7 +149,7 @@ export default function NewCampaign() {
             <div>
               <label
                 htmlFor="subject"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-zinc-300 mb-2"
               >
                 Email Subject
               </label>
@@ -161,10 +161,10 @@ export default function NewCampaign() {
                 onChange={(e) =>
                   setFormData({ ...formData, subject: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-white focus:border-transparent"
                 placeholder="Hey {{name}}, check this out!"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-zinc-400">
                 Use personalization: {"{{"} name {"}}"},  {"{{"} first_name {"}}"},  {"{{"} email {"}}"}
               </p>
             </div>
@@ -172,7 +172,7 @@ export default function NewCampaign() {
             <div>
               <label
                 htmlFor="fromEmail"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-zinc-300 mb-2"
               >
                 From Email Address
               </label>
@@ -184,10 +184,10 @@ export default function NewCampaign() {
                 onChange={(e) =>
                   setFormData({ ...formData, fromEmail: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-white focus:border-transparent"
                 placeholder="noreply@yourdomain.com"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-zinc-400">
                 Must be a verified domain in Resend
               </p>
             </div>
@@ -195,7 +195,7 @@ export default function NewCampaign() {
             <div>
               <label
                 htmlFor="content"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-zinc-300 mb-2"
               >
                 Email Content (HTML)
               </label>
@@ -207,45 +207,44 @@ export default function NewCampaign() {
                 onChange={(e) =>
                   setFormData({ ...formData, content: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-white focus:border-transparent font-mono text-sm"
                 placeholder="<html><body><h1>Hello!</h1><p>Your email content here...</p></body></html>"
               />
               <div className="mt-2 space-y-2">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-xs font-medium text-blue-900 mb-1">
+                <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-3">
+                  <p className="text-xs font-medium text-white mb-1">
                     Available personalization variables:
                   </p>
                   <div className="flex flex-wrap gap-2 text-xs">
-                    <code className="bg-white px-2 py-1 rounded text-blue-700">
+                    <code className="bg-black px-2 py-1 rounded text-zinc-300 border border-zinc-700">
                       {"{{"} name {"}}"}
                     </code>
-                    <code className="bg-white px-2 py-1 rounded text-blue-700">
+                    <code className="bg-black px-2 py-1 rounded text-zinc-300 border border-zinc-700">
                       {"{{"} first_name {"}}"}
                     </code>
-                    <code className="bg-white px-2 py-1 rounded text-blue-700">
+                    <code className="bg-black px-2 py-1 rounded text-zinc-300 border border-zinc-700">
                       {"{{"} last_name {"}}"}
                     </code>
-                    <code className="bg-white px-2 py-1 rounded text-blue-700">
+                    <code className="bg-black px-2 py-1 rounded text-zinc-300 border border-zinc-700">
                       {"{{"} email {"}}"}
                     </code>
                   </div>
-                  <p className="text-xs text-blue-700 mt-2">
+                  <p className="text-xs text-zinc-400 mt-2">
                     Example: &quot;Hi {"{{"} first_name {"}}"}, thanks for subscribing!&quot;
                   </p>
                 </div>
-                <p className="text-xs text-gray-500">
-                  Links will be automatically tracked. A tracking pixel will be
-                  added for open tracking.
+                <p className="text-xs text-zinc-400">
+                  Resend will automatically track opens and clicks via webhooks.
                 </p>
               </div>
             </div>
 
-            <div className="flex gap-3 pt-4 border-t border-gray-200">
+            <div className="flex gap-3 pt-4 border-t border-zinc-800">
               <button
                 type="button"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-zinc-800 text-zinc-300 px-6 py-2 rounded-lg hover:bg-zinc-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
                 {loading ? "Creating..." : "Save as Draft"}
               </button>
@@ -253,13 +252,13 @@ export default function NewCampaign() {
                 type="button"
                 onClick={handleSendNow}
                 disabled={loading}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-white text-black px-6 py-2 rounded-lg hover:bg-zinc-200 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
                 {loading ? "Sending..." : "Create & Send Now"}
               </button>
               <Link
                 href={`/projects/${projectId}/campaigns`}
-                className="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-200 transition"
+                className="bg-zinc-800 text-zinc-300 px-6 py-2 rounded-lg hover:bg-zinc-700 transition"
               >
                 Cancel
               </Link>
@@ -269,15 +268,15 @@ export default function NewCampaign() {
 
         {/* Preview */}
         {formData.content && (
-          <div className="mt-8 bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Preview</h3>
-            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-              <div className="bg-white rounded shadow-sm p-6">
-                <div className="text-sm text-gray-600 mb-2">
+          <div className="mt-8 bg-zinc-900 rounded-lg border border-zinc-800 p-6">
+            <h3 className="font-semibold text-white mb-4">Preview</h3>
+            <div className="border border-zinc-800 rounded-lg p-4 bg-black">
+              <div className="bg-zinc-900 rounded shadow-sm p-6">
+                <div className="text-sm text-zinc-400 mb-2">
                   Subject: {formData.subject || "(No subject)"}
                 </div>
                 <div
-                  className="prose max-w-none"
+                  className="prose prose-invert max-w-none"
                   dangerouslySetInnerHTML={{ __html: formData.content }}
                 />
               </div>

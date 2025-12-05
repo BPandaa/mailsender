@@ -41,6 +41,7 @@ model Subscriber {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   emailEvents EmailEvent[]
+  replies     Reply[]
 
   @@unique([email, projectId])
   @@index([projectId])
@@ -59,6 +60,7 @@ model Campaign {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   emailEvents EmailEvent[]
+  replies     Reply[]
 
   @@index([projectId])
   @@index([status])
@@ -117,4 +119,23 @@ model ClickEvent {
 
   @@index([emailEventId])
   @@index([clickedAt])
+}
+
+model Reply {
+  id           String     @id @default(cuid())
+  campaignId   String
+  campaign     Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  subscriberId String?
+  subscriber   Subscriber? @relation(fields: [subscriberId], references: [id], onDelete: SetNull)
+  fromEmail    String
+  fromName     String?
+  subject      String
+  textContent  String?    @db.Text
+  htmlContent  String?    @db.Text
+  receivedAt   DateTime   @default(now())
+  resendId     String?    @unique // Resend inbound email ID
+
+  @@index([campaignId])
+  @@index([subscriberId])
+  @@index([receivedAt])
 }

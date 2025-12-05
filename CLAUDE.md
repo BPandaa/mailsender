@@ -16,11 +16,12 @@ This is an email campaign management and analytics platform - a self-hosted alte
 
 **Analytics Tracking**:
 - Email delivery status (sent, failed, bounced)
-- Open tracking via 1x1 tracking pixel
-- Click tracking via redirect URLs
+- Open tracking via Resend native tracking
+- Click tracking via Resend native tracking
+- Reply tracking via Resend inbound email
 - Multiple opens/clicks per subscriber tracked
-- Geolocation (country/city) from IP address
-- Device/browser info from user agent
+- Geolocation (country/city) from webhook data
+- Device/browser info from webhook data
 - Per-link click analytics
 
 **Dashboard**: Umami-style analytics interface showing:
@@ -50,39 +51,37 @@ This is an email campaign management and analytics platform - a self-hosted alte
 **Subscribers**: Email list per project with metadata
 **Campaigns**: Email campaigns with message content and sending configuration
 **EmailEvents**: Individual email records tracking delivery and all engagement events
-**LinkClicks**: Detailed click tracking with URL, timestamp, and context
+**OpenEvent**: Email open tracking with device/browser/geo data
+**ClickEvent**: Link click tracking with URL, timestamp, and context
+**Reply**: Inbound email replies to campaigns
 **Analytics**: Aggregated metrics for dashboard performance
 
 ### Email Tracking Mechanism
 
-**Open Tracking**:
-- Generate unique tracking pixel URL per email: `/api/track/open/[uniqueId]`
-- Embed 1x1 transparent GIF in email HTML
-- Log open event with timestamp, IP, user agent when pixel is requested
-
-**Click Tracking**:
-- Rewrite all links in email to redirect through: `/api/track/click/[uniqueId]/[linkId]`
-- Log click event with metadata, then redirect to original URL
-- Track multiple clicks per link per subscriber
+**Resend Native Tracking**:
+- All tracking is handled by Resend automatically
+- No custom tracking pixels or link rewriting needed
+- Webhook events provide open and click data
+- Data includes timestamp, IP, user agent, device info, and geolocation
 
 ### API Routes
 
 - `/api/campaigns` - CRUD for campaigns
 - `/api/campaigns/[id]/send` - Send campaign to all project subscribers
 - `/api/subscribers` - CRUD and CSV import
-- `/api/track/open/[id]` - Tracking pixel endpoint
-- `/api/track/click/[id]/[linkId]` - Click redirect endpoint
+- `/api/webhooks/resend` - Resend webhook handler for outbound email tracking events
+- `/api/webhooks/resend-inbound` - Resend webhook handler for inbound email (replies)
 - `/api/analytics/[projectId]` - Dashboard data aggregation
 
 ### Key Implementation Details
 
-**Email Sending**: Use Resend batch API for efficient sending. Queue large campaigns. Store Resend message ID for webhook reconciliation.
+**Email Sending**: Use Resend API with native tracking enabled. Store Resend message ID for webhook reconciliation.
 
-**Link Rewriting**: Parse email HTML, extract all `<a href>` tags, replace with tracking URLs, maintain mapping of linkId to original URL.
+**Webhook Processing**: Receive and verify webhook signatures. Match webhook events to EmailEvent records via resendId. Create OpenEvent and ClickEvent records from webhook data.
 
 **Analytics Aggregation**: Pre-compute daily/hourly metrics for dashboard performance. Use database indexes on timestamp fields for query efficiency.
 
-**Geolocation**: Cache IP-to-location lookups to avoid repeated API calls. Handle IPv4 and IPv6.
+**Event Data**: Webhook payload includes geolocation, device info, and user agent automatically from Resend.
 
 ## Common Commands
 

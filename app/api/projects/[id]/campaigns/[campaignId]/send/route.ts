@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { sendEmail, rewriteLinksForTracking, insertTrackingPixel } from "@/lib/email";
+import { sendEmail } from "@/lib/email";
 import { personalizeContent } from "@/lib/personalize";
 
 // POST /api/projects/[id]/campaigns/[campaignId]/send - Send campaign
@@ -72,9 +72,6 @@ export async function POST(
       );
     }
 
-    // Get base URL for tracking links
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-
     const results = {
       sent: 0,
       failed: 0,
@@ -94,16 +91,10 @@ export async function POST(
         });
 
         // Prepare email content with personalization
-        let emailHtml = personalizeContent(campaign.content, subscriber);
-        let emailSubject = personalizeContent(campaign.subject, subscriber);
+        const emailHtml = personalizeContent(campaign.content, subscriber);
+        const emailSubject = personalizeContent(campaign.subject, subscriber);
 
-        // Insert tracking pixel
-        emailHtml = insertTrackingPixel(emailHtml, emailEvent.id, baseUrl);
-
-        // Rewrite links for click tracking
-        emailHtml = rewriteLinksForTracking(emailHtml, emailEvent.id, baseUrl);
-
-        // Send email
+        // Send email with Resend's native tracking
         const result = await sendEmail({
           to: subscriber.email,
           from: fromEmail,

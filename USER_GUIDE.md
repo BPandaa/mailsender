@@ -88,11 +88,11 @@ Resend provides webhooks that give you **accurate tracking** for email events li
 
 ### Why Use Resend Webhooks?
 
-- **Accurate open tracking**: Resend tracks actual opens, not just pixel loads
+- **Accurate open tracking**: Resend tracks actual opens automatically
 - **Delivery confirmation**: Know exactly when emails are delivered
 - **Bounce handling**: Get notified of hard and soft bounces
 - **Click tracking**: Track all link clicks automatically
-- **No manual tracking pixel management**: Resend handles it all
+- **No custom tracking infrastructure needed**: Resend handles everything
 
 ### Step 1: Create Webhook Endpoint
 
@@ -165,29 +165,33 @@ To test webhooks on your local machine:
 
 6. **Send a test email** and check ngrok terminal for webhook events
 
-### Step 4: Update Email Sending Code
+### Step 4: How It Works
 
-When sending emails through Resend, make sure to store the Resend message ID:
+When you send emails through the app:
 
-The code already does this in `/api/projects/[projectId]/campaigns/[campaignId]/send`:
+1. **Email is sent via Resend API** with native tracking enabled
+2. **Resend assigns a unique message ID** which is stored in your database
+3. **Resend automatically tracks** opens, clicks, deliveries, and bounces
+4. **Webhook events are sent to your app** at `/api/webhooks/resend`
+5. **Your database is updated** with tracking data automatically
+
+The sending code in `/api/projects/[projectId]/campaigns/[campaignId]/send` stores the Resend message ID for webhook reconciliation:
 
 ```typescript
-// When sending via Resend
-const { data } = await resend.emails.send({
-  from: 'your-email@example.com',
+// Send email with Resend's native tracking
+const result = await sendEmail({
   to: subscriber.email,
-  subject: campaign.subject,
+  from: fromEmail,
+  subject: emailSubject,
   html: emailHtml,
 });
 
-// Store the Resend message ID
-await prisma.emailEvent.create({
+// Store the Resend message ID for webhook matching
+await prisma.emailEvent.update({
+  where: { id: emailEvent.id },
   data: {
-    campaignId: campaign.id,
-    subscriberId: subscriber.id,
-    resendId: data?.id, // This links to Resend's tracking
-    status: 'sent',
-    sentAt: new Date(),
+    resendId: result.messageId,
+    status: "delivered",
   },
 });
 ```
@@ -217,6 +221,142 @@ await prisma.emailEvent.create({
    - Finds the `EmailEvent` by `resendId`
    - Creates an `OpenEvent` with timestamp, IP, user agent
    - Updates campaign analytics
+
+---
+
+## Tracking Email Replies (Inbound Emails)
+
+Mail Tracker can track replies to your campaigns automatically using Resend's inbound email feature.
+
+### How It Works
+
+When a subscriber replies to your campaign email, Resend can forward that reply to your webhook endpoint, where it's automatically saved in your database and associated with the campaign and subscriber.
+
+### Step 1: Set Up Inbound Email Domain
+
+1. **Go to Resend Dashboard** → Inbound
+   - Visit: https://resend.com/inbound
+
+2. **Add Your Domain**
+   - Enter the domain you want to receive emails on (e.g., `replies.yourdomain.com`)
+   - Follow Resend's DNS configuration instructions
+
+3. **Configure MX Records**
+   - Add the MX records provided by Resend to your DNS
+   - Wait for DNS propagation (can take up to 24 hours)
+
+### Step 2: Create Inbound Webhook
+
+1. **Go to Resend Dashboard** → Webhooks
+   - Visit: https://resend.com/webhooks
+
+2. **Create Inbound Email Webhook**
+   - Click "Add Webhook"
+   - **Webhook URL**: `https://your-app.vercel.app/api/webhooks/resend-inbound`
+   - Select event: `email.received`
+   - Save the webhook
+
+3. **Use the Same Webhook Secret**
+   - You can use the same `RESEND_WEBHOOK_SECRET` for both outbound and inbound webhooks
+
+### Step 3: Update Your Campaign "From" Address
+
+When creating campaigns, use a "Reply-To" format or set your from address to allow replies:
+
+```
+From: noreply@yourdomain.com
+Reply-To: replies@yourdomain.com
+```
+
+Or configure Resend to forward all replies to your inbound domain.
+
+### Step 4: Receive Replies in Your Personal Email
+
+You have **two options** to receive replies in your personal inbox:
+
+#### **Option 1: Automatic Email Forwarding (Recommended)**
+
+The app will automatically forward replies to your personal email with a nice formatted notification.
+
+1. **Add to your `.env` file**:
+   ```env
+   REPLY_FORWARD_EMAIL=your-personal-email@gmail.com
+   REPLY_FORWARD_FROM_EMAIL=noreply@yourdomain.com
+   ```
+
+2. **What you'll receive**:
+   - Email notification when someone replies
+   - Shows campaign name, sender info, and reply content
+   - Beautifully formatted HTML email
+   - You can reply directly to respond to the subscriber
+
+3. **Example notification email**:
+   ```
+   Subject: [Reply] Re: Your Campaign Subject - Monthly Newsletter
+
+   New Campaign Reply
+   Campaign: Monthly Newsletter
+   From: John Doe <john@example.com>
+   Subject: Re: Your Campaign Subject
+   Received: 12/5/2025, 3:45 PM
+
+   [Reply content displayed here]
+
+   💡 Tip: Reply directly to this email to respond to john@example.com
+   ```
+
+#### **Option 2: Resend Built-in Forwarding**
+
+Resend can also forward emails directly (without going through your app):
+
+1. **Go to Resend Dashboard** → Inbound → Your Domain
+2. **Click "Forward Emails"**
+3. **Add forwarding rule**:
+   - From: `*@replies.yourdomain.com` (all addresses)
+   - To: `your-personal-email@gmail.com`
+
+This will forward ALL inbound emails directly to your personal email, but they won't be stored in your database unless the webhook is also configured.
+
+#### **Best Approach: Use Both!**
+
+- ✅ Enable webhook forwarding (Option 1) - Stores in database + sends notification
+- ✅ Keep Resend forwarding (Option 2) - Backup copy in your inbox
+
+### Step 5: View Replies in Database
+
+Replies are automatically:
+- Saved to the database in the `Reply` table
+- Associated with the campaign they're replying to
+- Linked to the subscriber who sent the reply
+
+You can view replies:
+1. In your personal email (if forwarding is enabled)
+2. Using Prisma Studio: `npx prisma studio`
+3. In your campaign analytics dashboard (UI coming soon)
+
+### Database Schema
+
+The Reply model stores:
+- `fromEmail` - Subscriber's email address
+- `fromName` - Subscriber's name (if available)
+- `subject` - Reply subject line
+- `textContent` - Plain text version of reply
+- `htmlContent` - HTML version of reply
+- `receivedAt` - When the reply was received
+- `campaignId` - The campaign being replied to
+- `subscriberId` - The subscriber who replied
+
+### Troubleshooting
+
+**Replies not appearing?**
+- Verify your inbound domain DNS is configured correctly
+- Check that the inbound webhook URL is correct
+- Ensure replies are sent to an address on your inbound domain
+- Check application logs for webhook errors
+
+**Can't determine which campaign a reply is for?**
+- The system automatically links replies to the most recent email sent to that subscriber
+- If no recent email is found, it links to the most recent campaign in the project
 
 ---
 
@@ -303,6 +443,10 @@ NEXTAUTH_URL="http://localhost:3000" # or your production URL
 # Resend
 RESEND_API_KEY="re_..."
 RESEND_WEBHOOK_SECRET="whsec_..."
+
+# Reply Forwarding (Optional - to receive replies in your personal email)
+REPLY_FORWARD_EMAIL="your-personal-email@gmail.com"
+REPLY_FORWARD_FROM_EMAIL="noreply@yourdomain.com"
 
 # Optional: Geolocation
 GEOLOCATION_API_KEY="your_key_here"

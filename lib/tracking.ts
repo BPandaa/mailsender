@@ -1,6 +1,34 @@
 import { UAParser } from "ua-parser-js";
 
 /**
+ * Detect if a user agent is likely a bot, email scanner, or proxy
+ */
+export function isBot(userAgent: string): boolean {
+  if (!userAgent) return true;
+
+  const botPatterns = [
+    /bot/i,
+    /crawler/i,
+    /spider/i,
+    /scan/i,
+    /HeadlessChrome/i,
+    /PhantomJS/i,
+    /GoogleImageProxy/i,
+    /Yahoo! Slurp/i,
+    /bingbot/i,
+    /LinkedInBot/i,
+    /facebookexternalhit/i,
+    /Twitterbot/i,
+    /WhatsApp/i,
+    /SkypeUriPreview/i,
+    /Slackbot/i,
+    /Discordbot/i,
+  ];
+
+  return botPatterns.some((pattern) => pattern.test(userAgent));
+}
+
+/**
  * Parse user agent string to extract device, browser, and OS information
  */
 export function parseUserAgent(userAgent: string) {
@@ -11,6 +39,7 @@ export function parseUserAgent(userAgent: string) {
     device: result.device.type || "desktop",
     browser: result.browser.name || "Unknown",
     os: result.os.name || "Unknown",
+    isBot: isBot(userAgent),
   };
 }
 

@@ -93,9 +93,12 @@ model OpenEvent {
   device       String?
   browser      String?
   os           String?
+  isBot        Boolean    @default(false)
+  isUnique     Boolean    @default(true) // First open is unique, subsequent are duplicates
 
   @@index([emailEventId])
   @@index([openedAt])
+  @@index([isUnique])
 }
 
 model ClickEvent {

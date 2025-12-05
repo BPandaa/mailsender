@@ -17,12 +17,24 @@ export async function GET(
     console.log(`IP: ${ip}, User-Agent: ${userAgent}`);
 
     // Parse user agent using ua-parser-js for accurate detection
-    const { device, browser, os } = parseUserAgent(userAgent);
+    const { device, browser, os, isBot } = parseUserAgent(userAgent);
+
+    // Check for duplicate opens within the last 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const recentOpen = await prisma.openEvent.findFirst({
+      where: {
+        emailEventId,
+        openedAt: { gte: fiveMinutesAgo },
+      },
+      orderBy: { openedAt: "desc" },
+    });
+
+    const isUnique = !recentOpen; // First open is unique
 
     // Get geolocation from IP (async, but don't block the pixel response)
     const geolocation = await getGeolocationIPAPI(ip);
 
-    // Record open event
+    // Record open event with deduplication
     const openEvent = await prisma.openEvent.create({
       data: {
         emailEventId,
@@ -33,10 +45,14 @@ export async function GET(
         os,
         country: geolocation.country,
         city: geolocation.city,
+        isBot,
+        isUnique,
       },
     });
 
-    console.log(`✅ Open event recorded: ${openEvent.id} for ${device}/${browser} from ${geolocation.city}, ${geolocation.country}`);
+    console.log(
+      `✅ Open event recorded: ${openEvent.id} | ${device}/${browser} | ${geolocation.city}, ${geolocation.country} | Bot: ${isBot} | Unique: ${isUnique}`
+    );
 
     // Return 1x1 transparent GIF (minimal base64-encoded GIF)
     const pixel = Buffer.from(

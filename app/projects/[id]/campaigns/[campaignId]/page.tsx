@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { SendCampaignButton } from "./SendCampaignButton";
 import { DeleteCampaignButton } from "./DeleteCampaignButton";
+import { RecentActivity } from "./RecentActivity";
 
 async function getCampaign(projectId: string, campaignId: string) {
   const campaign = await prisma.campaign.findFirst({
@@ -31,40 +32,38 @@ async function getCampaignAnalytics(campaignId: string) {
     },
   });
 
-  // Calculate stats
-  const totalSent = emailEvents.filter((e) => e.status === "sent").length;
-  const totalOpens = emailEvents.filter((e) => e.opens.length > 0).length;
-  const totalClicks = emailEvents.filter((e) => e.clicks.length > 0).length;
-  const uniqueOpens = new Set(
-    emailEvents.filter((e) => e.opens.length > 0).map((e) => e.subscriberId)
-  ).size;
-  const uniqueClicks = new Set(
-    emailEvents.filter((e) => e.clicks.length > 0).map((e) => e.subscriberId)
-  ).size;
-
   // Get all opens and clicks
   const allOpens = emailEvents.flatMap((e) => e.opens);
   const allClicks = emailEvents.flatMap((e) => e.clicks);
 
-  // Count by country
+  // Filter for unique, non-bot opens
+  const realUniqueOpens = allOpens.filter((open) => open.isUnique && !open.isBot);
+  const totalUniqueOpens = allOpens.filter((open) => open.isUnique);
+
+  // Calculate stats
+  const totalSent = emailEvents.filter((e) => e.status === "sent").length;
+  const uniqueOpens = new Set(realUniqueOpens.map((o) => o.emailEventId)).size;
+  const uniqueClicks = new Set(allClicks.map((c) => c.emailEventId)).size;
+
+  // Count by country (use real unique opens only, filter out bots)
   const countryCounts: Record<string, number> = {};
-  allOpens.forEach((open) => {
+  realUniqueOpens.forEach((open) => {
     if (open.country) {
       countryCounts[open.country] = (countryCounts[open.country] || 0) + 1;
     }
   });
 
-  // Count by device
+  // Count by device (use real unique opens only)
   const deviceCounts: Record<string, number> = {};
-  allOpens.forEach((open) => {
+  realUniqueOpens.forEach((open) => {
     if (open.device) {
       deviceCounts[open.device] = (deviceCounts[open.device] || 0) + 1;
     }
   });
 
-  // Count by browser
+  // Count by browser (use real unique opens only)
   const browserCounts: Record<string, number> = {};
-  allOpens.forEach((open) => {
+  realUniqueOpens.forEach((open) => {
     if (open.browser) {
       browserCounts[open.browser] = (browserCounts[open.browser] || 0) + 1;
     }
@@ -76,20 +75,20 @@ async function getCampaignAnalytics(campaignId: string) {
     urlCounts[click.linkUrl] = (urlCounts[click.linkUrl] || 0) + 1;
   });
 
-  // Opens over time (group by day)
+  // Opens over time (group by day) - use real unique opens
   const opensOverTime: Record<string, number> = {};
-  allOpens.forEach((open) => {
+  realUniqueOpens.forEach((open) => {
     const date = new Date(open.openedAt).toISOString().split("T")[0];
     opensOverTime[date] = (opensOverTime[date] || 0) + 1;
   });
 
   return {
     totalSent,
-    totalOpens,
-    totalClicks,
     uniqueOpens,
     uniqueClicks,
-    allOpens,
+    realUniqueOpens,
+    totalUniqueOpens,
+    allOpens, // Keep for debugging/showing all activity
     allClicks,
     countryCounts,
     deviceCounts,
@@ -178,12 +177,12 @@ export default async function CampaignAnalytics({
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="text-gray-600 text-sm mb-1">Opens</div>
+            <div className="text-gray-600 text-sm mb-1">Unique Opens</div>
             <div className="text-3xl font-bold text-gray-900">
               {analytics.uniqueOpens}
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              {analytics.allOpens.length} total
+              {analytics.totalUniqueOpens.length} total ({analytics.allOpens.length - analytics.totalUniqueOpens.length} bots/duplicates)
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg border border-gray-200">
@@ -228,7 +227,7 @@ export default async function CampaignAnalytics({
                               className="bg-blue-600 h-2 rounded-full"
                               style={{
                                 width: `${
-                                  (count / analytics.allOpens.length) * 100
+                                  (count / analytics.realUniqueOpens.length) * 100
                                 }%`,
                               }}
                             />
@@ -265,7 +264,7 @@ export default async function CampaignAnalytics({
                               className="bg-blue-600 h-2 rounded-full"
                               style={{
                                 width: `${
-                                  (count / analytics.allOpens.length) * 100
+                                  (count / analytics.realUniqueOpens.length) * 100
                                 }%`,
                               }}
                             />
@@ -303,7 +302,7 @@ export default async function CampaignAnalytics({
                               className="bg-blue-600 h-2 rounded-full"
                               style={{
                                 width: `${
-                                  (count / analytics.allOpens.length) * 100
+                                  (count / analytics.realUniqueOpens.length) * 100
                                 }%`,
                               }}
                             />
@@ -346,64 +345,52 @@ export default async function CampaignAnalytics({
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="font-semibold text-gray-900">Recent Activity</h3>
-          </div>
-          <div className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-            {[...analytics.allOpens.map((o) => ({ ...o, type: "open" })),
-              ...analytics.allClicks.map((c) => ({ ...c, type: "click" }))]
-              .sort((a, b) => {
-                const timeA = "openedAt" in a ? a.openedAt : a.clickedAt;
-                const timeB = "openedAt" in b ? b.openedAt : b.clickedAt;
-                return new Date(timeB).getTime() - new Date(timeA).getTime();
-              })
-              .slice(0, 20)
-              .map((event, idx) => {
-                const time = "openedAt" in event ? event.openedAt : event.clickedAt;
-                const emailEvent = analytics.emailEvents.find(
-                  (e) => e.id === event.emailEventId
-                );
-
-                return (
-                  <div key={idx} className="p-4 hover:bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                              event.type === "open"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-green-100 text-green-800"
-                            }`}
-                          >
-                            {event.type === "open" ? "Opened" : "Clicked"}
-                          </span>
-                          <span className="text-sm text-gray-900">
-                            {emailEvent?.subscriber.email}
-                          </span>
-                        </div>
-                        {event.type === "click" && "linkUrl" in event && (
-                          <div className="text-xs text-gray-600 truncate">
-                            {event.linkUrl}
-                          </div>
-                        )}
-                        <div className="text-xs text-gray-500 mt-1">
-                          {event.country && `${event.country} • `}
-                          {event.device && `${event.device} • `}
-                          {event.browser}
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(time).toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
+        {/* Recent Activity with Tabs */}
+        <RecentActivity
+          events={[
+            // Sent events
+            ...analytics.emailEvents
+              .filter((e) => e.status === "sent")
+              .map((e) => ({
+                type: "sent" as const,
+                email: e.subscriber.email,
+                time: e.sentAt,
+              })),
+            // Open events
+            ...analytics.allOpens.map((o) => {
+              const emailEvent = analytics.emailEvents.find(
+                (e) => e.id === o.emailEventId
+              );
+              return {
+                type: "open" as const,
+                email: emailEvent?.subscriber.email || "Unknown",
+                country: o.country,
+                city: o.city,
+                device: o.device,
+                browser: o.browser,
+                time: o.openedAt,
+                isBot: o.isBot,
+                isUnique: o.isUnique,
+              };
+            }),
+            // Click events
+            ...analytics.allClicks.map((c) => {
+              const emailEvent = analytics.emailEvents.find(
+                (e) => e.id === c.emailEventId
+              );
+              return {
+                type: "click" as const,
+                email: emailEvent?.subscriber.email || "Unknown",
+                country: c.country,
+                city: c.city,
+                device: c.device,
+                browser: c.browser,
+                time: c.clickedAt,
+                linkUrl: c.linkUrl,
+              };
+            }),
+          ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())}
+        />
       </main>
     </div>
   );

@@ -9,7 +9,12 @@ export async function GET() {
       return NextResponse.json({ error: result.error }, { status: 500 });
     }
 
-    return NextResponse.json({ emails: result.data });
+    // Ensure we return an array
+    const emails = Array.isArray(result.data)
+      ? result.data
+      : result.data?.data || [];
+
+    return NextResponse.json({ emails });
   } catch (error) {
     console.error("List received emails error:", error);
     return NextResponse.json(

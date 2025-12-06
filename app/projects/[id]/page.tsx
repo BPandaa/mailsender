@@ -11,7 +11,6 @@ async function getProject(id: string) {
           select: {
             subscribers: true,
             campaigns: true,
-            templates: true,
           },
         },
       },
@@ -150,7 +149,7 @@ export default async function ProjectDetail({
         </div>
 
         {/* Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Link
             href={`/projects/${id}/subscribers`}
             className="bg-zinc-900 p-6 rounded-lg border border-zinc-800 hover:border-zinc-700 transition group"
@@ -160,17 +159,6 @@ export default async function ProjectDetail({
             </h3>
             <p className="text-zinc-400 text-sm">
               Add subscribers manually or import from CSV
-            </p>
-          </Link>
-          <Link
-            href={`/projects/${id}/templates`}
-            className="bg-zinc-900 p-6 rounded-lg border border-zinc-800 hover:border-zinc-700 transition group"
-          >
-            <h3 className="font-semibold text-white mb-2 group-hover:text-zinc-300">
-              Email Templates →
-            </h3>
-            <p className="text-zinc-400 text-sm">
-              Create reusable email templates for campaigns
             </p>
           </Link>
           <Link

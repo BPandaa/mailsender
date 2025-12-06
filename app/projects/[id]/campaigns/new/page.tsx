@@ -31,6 +31,7 @@ export default function NewCampaign() {
 
   useEffect(() => {
     fetchTemplates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchTemplates = async () => {

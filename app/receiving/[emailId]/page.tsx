@@ -38,6 +38,7 @@ export default function ReceivedEmailDetail() {
   useEffect(() => {
     fetchEmail();
     fetchAttachments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emailId]);
 
   const fetchEmail = async () => {

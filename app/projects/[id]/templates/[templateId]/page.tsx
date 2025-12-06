@@ -25,6 +25,7 @@ export default function TemplateEditorPage({
 
   useEffect(() => {
     fetchTemplate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchTemplate = async () => {

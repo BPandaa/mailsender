@@ -23,7 +23,17 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nAdd complete email campaign management system\n\n- Authentication with NextAuth.js (login/register)\n- Multi-project support with isolated subscribers and campaigns\n- Email sending via Resend API with personalization ({{name}}, {{email}}, etc)\n- Open tracking via 1x1 tracking pixel\n- Click tracking via redirect URLs\n- Umami-inspired analytics dashboard\n- Campaign management (create, send, delete)\n- Subscriber management with CSV import\n- Real-time analytics with device/browser/geo tracking\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git push:*)",
       "Bash(DATABASE_URL=\"postgresql://postgres.uxgqagivezeedhevikmd:Fkabbouch0000!@db.uxgqagivezeedhevikmd.supabase.co:5432/postgres\" npx prisma migrate dev:*)",
-      "Bash(DATABASE_URL=\"postgresql://postgres.uxgqagivezeedhevikmd:Fkabbouch0000!@aws-1-eu-west-1.pooler.supabase.com:6543/postgres\" npx prisma db push:*)"
+      "Bash(DATABASE_URL=\"postgresql://postgres.uxgqagivezeedhevikmd:Fkabbouch0000!@aws-1-eu-west-1.pooler.supabase.com:6543/postgres\" npx prisma db push:*)",
+      "Bash(node debug-tracking.js:*)",
+      "WebFetch(domain:resend.com)",
+      "Bash(del publicpixel.gif)",
+      "Bash(rm:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd email templates system and receiving inbox dashboard\n\nFeatures:\n- Email templates: Create, edit, publish, and duplicate reusable email templates\n- Template integration: Select templates when creating campaigns to auto-fill content\n- Receiving inbox: Dashboard to view all incoming emails via Resend API\n- Email attachments: View and download attachments from received emails\n- Dark theme updates: Apply consistent dark theme to project creation and navbar\n- Navigation improvements: Fix navbar alignment and add inbox link to main nav\n\nTemplate Management:\n- Template CRUD API routes (/api/projects/[id]/templates)\n- Template list, editor, and creation pages\n- Resend template publishing support\n- Variable support ({{name}}, {{email}})\n\nReceiving Dashboard:\n- List all received emails (/api/receiving)\n- View email details with HTML/text toggle\n- Attachment management with download support\n- Resend API integration for inbound emails\n\nUI Improvements:\n- Consistent dark theme across all pages\n- Fixed navbar alignment (back button with titles)\n- Added templates card to project dashboard\n- Navigation bar with Projects and Inbox links\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)",
+      "Bash(node test-receiving.js:*)",
+      "Bash(powershell -command \"Get-Content ''app\\api\\webhooks\\resend\\route.ts'' | Select-Object -Last 20\")"
     ],
     "deny": [],
     "ask": []

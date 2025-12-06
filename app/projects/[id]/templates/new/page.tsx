@@ -194,7 +194,7 @@ export default function NewTemplatePage({
                 {"{"} name {"}"}
                 {"}"}
               </code>{" "}
-              - Subscriber's name
+              - Subscriber&apos;s name
             </p>
             <p>
               <code className="bg-black px-2 py-1 rounded text-zinc-300">
@@ -202,7 +202,7 @@ export default function NewTemplatePage({
                 {"{"} email {"}"}
                 {"}"}
               </code>{" "}
-              - Subscriber's email address
+              - Subscriber&apos;s email address
             </p>
           </div>
         </div>

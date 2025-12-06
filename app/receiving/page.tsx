@@ -12,6 +12,10 @@ interface ReceivedEmail {
   text?: string;
   received_at: string;
   attachments?: any[];
+  project?: {
+    id: string;
+    name: string;
+  } | null;
 }
 
 export default function ReceivingDashboard() {
@@ -19,6 +23,7 @@ export default function ReceivingDashboard() {
   const [error, setError] = useState("");
   const [emails, setEmails] = useState<ReceivedEmail[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<string>("all");
 
   useEffect(() => {
     fetchEmails();
@@ -47,6 +52,21 @@ export default function ReceivingDashboard() {
     fetchEmails();
   };
 
+  // Get unique projects from emails
+  const projects = Array.from(
+    new Set(
+      emails
+        .filter((e) => e.project)
+        .map((e) => JSON.stringify(e.project))
+    )
+  ).map((p) => JSON.parse(p));
+
+  // Filter emails by selected project
+  const filteredEmails =
+    selectedProject === "all"
+      ? emails
+      : emails.filter((e) => e.project?.id === selectedProject);
+
   return (
     <div className="min-h-screen bg-black">
       {/* Header */}
@@ -69,13 +89,29 @@ export default function ReceivingDashboard() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="bg-white text-black px-4 py-2 rounded-lg hover:bg-zinc-200 transition disabled:opacity-50 font-medium"
-            >
-              {refreshing ? "Refreshing..." : "Refresh"}
-            </button>
+            <div className="flex items-center gap-3">
+              {projects.length > 0 && (
+                <select
+                  value={selectedProject}
+                  onChange={(e) => setSelectedProject(e.target.value)}
+                  className="bg-zinc-900 text-white px-4 py-2 rounded-lg border border-zinc-700 hover:border-zinc-600 transition"
+                >
+                  <option value="all">All Projects</option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="bg-white text-black px-4 py-2 rounded-lg hover:bg-zinc-200 transition disabled:opacity-50 font-medium"
+              >
+                {refreshing ? "Refreshing..." : "Refresh"}
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -92,7 +128,7 @@ export default function ReceivingDashboard() {
           <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-12 text-center">
             <div className="text-zinc-400">Loading received emails...</div>
           </div>
-        ) : emails.length === 0 ? (
+        ) : filteredEmails.length === 0 ? (
           <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-12 text-center">
             <h3 className="text-lg font-medium text-white mb-2">
               No received emails
@@ -111,17 +147,21 @@ export default function ReceivingDashboard() {
             <div className="p-6 border-b border-zinc-800">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-white">
-                  All Received Emails
+                  {selectedProject === "all"
+                    ? "All Received Emails"
+                    : projects.find((p) => p.id === selectedProject)?.name ||
+                      "Filtered Emails"}
                 </h2>
                 <span className="text-sm text-zinc-400">
-                  {emails.length} {emails.length === 1 ? "email" : "emails"}
+                  {filteredEmails.length}{" "}
+                  {filteredEmails.length === 1 ? "email" : "emails"}
                 </span>
               </div>
             </div>
 
             {/* Email List */}
             <div className="divide-y divide-zinc-800">
-              {emails.map((email) => (
+              {filteredEmails.map((email) => (
                 <Link
                   key={email.id}
                   href={`/receiving/${email.id}`}
@@ -153,6 +193,14 @@ export default function ReceivingDashboard() {
                     </div>
                     <div className="flex items-center gap-4 text-sm text-zinc-400">
                       <span className="truncate">From: {email.from}</span>
+                      {email.project && (
+                        <>
+                          <span>•</span>
+                          <span className="inline-flex items-center text-xs bg-zinc-800 text-zinc-300 px-2 py-1 rounded">
+                            {email.project.name}
+                          </span>
+                        </>
+                      )}
                       <span>•</span>
                       <span className="truncate">
                         To: {email.to.join(", ")}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { auth, signOut } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 async function getProjects(userId: string) {
@@ -76,6 +76,19 @@ export default async function Dashboard() {
               >
                 Inbox
               </Link>
+              <form
+                action={async () => {
+                  "use server";
+                  await signOut();
+                }}
+              >
+                <button
+                  type="submit"
+                  className="text-zinc-400 hover:text-white transition"
+                >
+                  Logout
+                </button>
+              </form>
             </nav>
           </div>
         </div>

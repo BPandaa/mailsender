@@ -168,10 +168,10 @@ export default async function CampaignAnalytics({
           <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
             <div className="text-zinc-400 text-sm mb-1">Sent (Delivered)</div>
             <div className="text-3xl font-bold text-white">
-              {analytics.emailsWithOpens}
+              {analytics.totalSent}
             </div>
             <div className="text-xs text-zinc-500 mt-1">
-              Emails with opens
+              {analytics.emailsWithOpens} opened
             </div>
           </div>
           <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">

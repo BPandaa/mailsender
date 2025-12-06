@@ -1,15 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 
-export default function TemplateEditorPage({
-  params,
-}: {
-  params: { id: string; templateId: string };
-}) {
+export default function TemplateEditorPage() {
   const router = useRouter();
+  const params = useParams<{ id: string; templateId: string }>();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);

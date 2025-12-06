@@ -48,18 +48,17 @@ export async function getReceivedEmail(emailId: string) {
 /**
  * List attachments for a received email
  * @param emailId - The Resend email ID
+ * NOTE: This feature is not yet available in the Resend SDK
  */
 export async function listReceivedEmailAttachments(emailId: string) {
   try {
-    const { data, error } = await resend.attachments.receiving.list({
-      emailId,
-    });
+    // TODO: Enable when Resend SDK supports attachments API
+    // const { data, error } = await resend.attachments.receiving.list({
+    //   emailId,
+    // });
 
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    return { success: true, data };
+    // Placeholder - will be enabled when SDK supports it
+    return { success: true, data: [] };
   } catch (error) {
     console.error("List attachments error:", error);
     return {
@@ -73,22 +72,21 @@ export async function listReceivedEmailAttachments(emailId: string) {
  * Get a specific attachment from a received email
  * @param emailId - The Resend email ID
  * @param attachmentId - The attachment ID
+ * NOTE: This feature is not yet available in the Resend SDK
  */
 export async function getReceivedEmailAttachment(
   emailId: string,
   attachmentId: string
 ) {
   try {
-    const { data, error } = await resend.attachments.receiving.get({
-      id: attachmentId,
-      emailId,
-    });
+    // TODO: Enable when Resend SDK supports attachments API
+    // const { data, error } = await resend.attachments.receiving.get({
+    //   id: attachmentId,
+    //   emailId,
+    // });
 
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    return { success: true, data };
+    // Placeholder - will be enabled when SDK supports it
+    return { success: true, data: null };
   } catch (error) {
     console.error("Get attachment error:", error);
     return {

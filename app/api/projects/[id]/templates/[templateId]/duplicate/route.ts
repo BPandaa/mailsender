@@ -39,7 +39,7 @@ export async function POST(
         html: template.html,
         subject: template.subject,
         projectId: id,
-        variables: template.variables,
+        variables: template.variables || undefined,
         signature: template.signature,
         status: "draft", // Duplicates start as draft
         // Don't copy resendTemplateId - it will be created if/when published

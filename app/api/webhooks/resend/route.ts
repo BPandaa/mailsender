@@ -359,23 +359,48 @@ async function handleEmailReceived(data: any) {
       },
     });
 
-    // Create a reply record
-    await prisma.reply.create({
-      data: {
-        fromEmail: data.from,
-        fromName: data.from_name || null,
-        subject: data.subject || "",
-        textContent: data.text || null,
-        htmlContent: data.html || null,
-        receivedAt: new Date(data.created_at || Date.now()),
-        resendId: data.email_id,
-        subscriberId: subscriber?.id || null,
-        // If we can't match to a campaign, leave it null
-        campaignId: null,
-      },
-    });
+    // Try to find the campaign this is replying to
+    let campaignId = null;
 
-    console.log(`Inbound email stored: ${data.email_id}`);
+    if (subscriber) {
+      // Check recent campaigns sent to this subscriber
+      const recentEmailEvent = await prisma.emailEvent.findFirst({
+        where: {
+          subscriberId: subscriber.id,
+        },
+        orderBy: {
+          sentAt: "desc",
+        },
+      });
+
+      if (recentEmailEvent) {
+        campaignId = recentEmailEvent.campaignId;
+      }
+    }
+
+    // Only create a Reply if we can match it to a campaign
+    // (Reply model requires a campaignId)
+    if (campaignId) {
+      await prisma.reply.create({
+        data: {
+          campaignId,
+          subscriberId: subscriber?.id || null,
+          fromEmail: data.from,
+          fromName: data.from_name || null,
+          subject: data.subject || "",
+          textContent: data.text || null,
+          htmlContent: data.html || null,
+          receivedAt: new Date(data.created_at || Date.now()),
+          resendId: data.email_id,
+        },
+      });
+
+      console.log(`Campaign reply stored: ${data.email_id} for campaign ${campaignId}`);
+    } else {
+      console.log(`Inbound email received but not matched to any campaign: ${data.email_id}`);
+      // Note: This email is still accessible via the receiving dashboard
+      // which fetches directly from Resend API
+    }
   } catch (error) {
     console.error("Error handling inbound email:", error);
   }

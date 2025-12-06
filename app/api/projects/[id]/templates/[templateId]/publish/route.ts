@@ -43,7 +43,7 @@ export async function POST(
       const result = await createResendTemplate({
         name: template.name,
         html: template.html,
-        variables: (template.variables as TemplateVariable[]) || [],
+        variables: (template.variables as unknown as TemplateVariable[]) || [],
         publish: true,
       });
 

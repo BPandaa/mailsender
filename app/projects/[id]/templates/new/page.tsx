@@ -1,15 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 
-export default function NewTemplatePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function NewTemplatePage() {
   const router = useRouter();
+  const params = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({

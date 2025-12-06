@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import NotificationBar from "@/components/NotificationBar";
 
 async function getProjects(userId: string) {
   const projects = await prisma.project.findMany({
@@ -58,6 +59,9 @@ export default async function Dashboard() {
 
   return (
     <div className="min-h-screen bg-black">
+      {/* Notification Bar */}
+      <NotificationBar />
+
       {/* Header */}
       <header className="bg-black border-b border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

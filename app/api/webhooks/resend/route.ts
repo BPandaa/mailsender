@@ -125,6 +125,8 @@ export async function POST(request: Request) {
 
 async function handleEmailSent(data: any) {
   // Update email event status to sent
+  console.log(`Looking for email event with resendId: ${data.email_id}`);
+
   const emailEvent = await prisma.emailEvent.findFirst({
     where: { resendId: data.email_id },
   });
@@ -137,12 +139,17 @@ async function handleEmailSent(data: any) {
         sentAt: new Date(data.created_at),
       },
     });
-    console.log(`Email sent: ${data.email_id}`);
+    console.log(`✅ Email sent event updated: ${data.email_id}`);
+  } else {
+    console.log(`⚠️ Email event not found for resendId: ${data.email_id}`);
+    console.log(`Webhook data:`, JSON.stringify(data, null, 2));
   }
 }
 
 async function handleEmailDelivered(data: any) {
   // Update email event status to delivered
+  console.log(`Looking for email event with resendId: ${data.email_id}`);
+
   const emailEvent = await prisma.emailEvent.findFirst({
     where: { resendId: data.email_id },
   });
@@ -154,7 +161,10 @@ async function handleEmailDelivered(data: any) {
         status: "delivered",
       },
     });
-    console.log(`Email delivered: ${data.email_id}`);
+    console.log(`✅ Email delivered event updated: ${data.email_id}`);
+  } else {
+    console.log(`⚠️ Email event not found for resendId: ${data.email_id}`);
+    console.log(`Webhook data:`, JSON.stringify(data, null, 2));
   }
 }
 

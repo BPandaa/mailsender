@@ -3,62 +3,85 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 
 async function getProject(id: string) {
-  const project = await prisma.project.findUnique({
-    where: { id },
-    include: {
-      _count: {
-        select: {
-          subscribers: true,
-          campaigns: true,
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            subscribers: true,
+            campaigns: true,
+            templates: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  if (!project) notFound();
-  return project;
+    if (!project) notFound();
+    return project;
+  } catch (error) {
+    console.error("Error fetching project:", error);
+    throw error;
+  }
 }
 
 async function getProjectStats(id: string) {
-  const [totalSent, totalOpens, totalClicks, recentCampaigns] =
-    await Promise.all([
-      // Total emails sent
-      prisma.emailEvent.count({
-        where: {
-          campaign: { projectId: id },
-          status: "sent",
-        },
-      }),
-      // Total opens
-      prisma.openEvent.count({
-        where: {
-          emailEvent: {
+  try {
+    const [totalSent, totalOpens, totalClicks, recentCampaigns] =
+      await Promise.all([
+        // Total emails sent
+        prisma.emailEvent.count({
+          where: {
             campaign: { projectId: id },
+            status: "sent",
           },
-        },
-      }),
-      // Total clicks
-      prisma.clickEvent.count({
-        where: {
-          emailEvent: {
-            campaign: { projectId: id },
+        }).catch((err) => {
+          console.error("Error counting sent emails:", err);
+          return 0;
+        }),
+        // Total opens
+        prisma.openEvent.count({
+          where: {
+            emailEvent: {
+              campaign: { projectId: id },
+            },
           },
-        },
-      }),
-      // Recent campaigns
-      prisma.campaign.findMany({
-        where: { projectId: id },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        include: {
-          _count: {
-            select: { emailEvents: true },
+        }).catch((err) => {
+          console.error("Error counting opens:", err);
+          return 0;
+        }),
+        // Total clicks
+        prisma.clickEvent.count({
+          where: {
+            emailEvent: {
+              campaign: { projectId: id },
+            },
           },
-        },
-      }),
-    ]);
+        }).catch((err) => {
+          console.error("Error counting clicks:", err);
+          return 0;
+        }),
+        // Recent campaigns
+        prisma.campaign.findMany({
+          where: { projectId: id },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          include: {
+            _count: {
+              select: { emailEvents: true },
+            },
+          },
+        }).catch((err) => {
+          console.error("Error fetching campaigns:", err);
+          return [];
+        }),
+      ]);
 
-  return { totalSent, totalOpens, totalClicks, recentCampaigns };
+    return { totalSent, totalOpens, totalClicks, recentCampaigns };
+  } catch (error) {
+    console.error("Error fetching project stats:", error);
+    return { totalSent: 0, totalOpens: 0, totalClicks: 0, recentCampaigns: [] };
+  }
 }
 
 export default async function ProjectDetail({

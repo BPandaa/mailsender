@@ -31,6 +31,15 @@ async function getCampaignAnalytics(campaignId: string) {
     },
   });
 
+  // Get replies to this campaign
+  const replies = await prisma.reply.findMany({
+    where: { campaignId },
+    include: {
+      subscriber: true,
+    },
+    orderBy: { receivedAt: "desc" },
+  });
+
   // Get all opens and clicks
   const allOpens = emailEvents.flatMap((e) => e.opens);
   const allClicks = emailEvents.flatMap((e) => e.clicks);
@@ -99,6 +108,7 @@ async function getCampaignAnalytics(campaignId: string) {
     urlCounts,
     opensOverTime,
     emailEvents,
+    replies,
   };
 }
 
@@ -391,6 +401,61 @@ export default async function CampaignAnalytics({
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Replies Section */}
+        <div className="bg-zinc-900 rounded-lg border border-zinc-800 mb-8">
+          <div className="p-6 border-b border-zinc-800">
+            <h2 className="text-lg font-semibold text-white">
+              Replies ({analytics.replies.length})
+            </h2>
+            <p className="text-sm text-zinc-400 mt-1">
+              Emails received in response to this campaign
+            </p>
+          </div>
+          {analytics.replies.length === 0 ? (
+            <div className="p-8 text-center text-zinc-400">
+              No replies yet
+            </div>
+          ) : (
+            <div className="divide-y divide-zinc-800">
+              {analytics.replies.map((reply) => (
+                <div
+                  key={reply.id}
+                  className="p-6 hover:bg-zinc-800/50 transition"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                          Reply
+                        </span>
+                        <span className="text-sm text-white font-medium">
+                          {reply.fromName || reply.fromEmail}
+                        </span>
+                      </div>
+                      <h3 className="text-sm text-zinc-300 mb-1">
+                        {reply.subject}
+                      </h3>
+                      {reply.textContent && (
+                        <p className="text-sm text-zinc-500 line-clamp-2">
+                          {reply.textContent}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right ml-4">
+                      <div className="text-xs text-zinc-400">
+                        {new Date(reply.receivedAt).toLocaleDateString()}
+                      </div>
+                      <div className="text-xs text-zinc-500">
+                        {new Date(reply.receivedAt).toLocaleTimeString()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </main>

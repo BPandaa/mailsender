@@ -252,10 +252,9 @@ export default function ReceivedEmailDetail() {
             {/* Content Display */}
             <div className="p-6">
               {viewMode === "html" && email.html ? (
-                <div
-                  className="prose prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: email.html }}
-                />
+                <div className="bg-white p-6 rounded-lg border border-zinc-700">
+                  <div dangerouslySetInnerHTML={{ __html: email.html }} />
+                </div>
               ) : email.text ? (
                 <pre className="text-zinc-300 whitespace-pre-wrap font-sans text-sm">
                   {email.text}

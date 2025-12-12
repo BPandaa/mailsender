@@ -351,16 +351,11 @@ export default function NewCampaign() {
         {formData.content && (
           <div className="mt-8 bg-zinc-900 rounded-lg border border-zinc-800 p-6">
             <h3 className="font-semibold text-white mb-4">Preview</h3>
-            <div className="border border-zinc-800 rounded-lg p-4 bg-black">
-              <div className="bg-zinc-900 rounded shadow-sm p-6">
-                <div className="text-sm text-zinc-400 mb-2">
-                  Subject: {formData.subject || "(No subject)"}
-                </div>
-                <div
-                  className="prose prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: formData.content }}
-                />
+            <div className="bg-white p-6 rounded-lg border border-zinc-800">
+              <div className="text-sm text-zinc-600 mb-4 pb-4 border-b border-zinc-200">
+                <strong>Subject:</strong> {formData.subject || "(No subject)"}
               </div>
+              <div dangerouslySetInnerHTML={{ __html: formData.content }} />
             </div>
           </div>
         )}

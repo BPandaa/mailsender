@@ -9,6 +9,7 @@ export default function NewTemplatePage() {
   const params = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     subject: "",
@@ -123,25 +124,77 @@ export default function NewTemplatePage() {
               >
                 Email HTML Content
               </label>
-              <textarea
-                id="html"
-                required
-                rows={12}
-                value={formData.html}
-                onChange={(e) =>
-                  setFormData({ ...formData, html: e.target.value })
-                }
-                className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-zinc-600 focus:border-transparent font-mono text-sm"
-                placeholder="<html>
+
+              {/* Tabs */}
+              <div className="flex gap-2 border-b border-zinc-700 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(false)}
+                  className={`px-4 py-2 text-sm font-medium transition ${
+                    !showPreview
+                      ? "text-white border-b-2 border-white"
+                      : "text-zinc-400 hover:text-zinc-300"
+                  }`}
+                >
+                  Edit HTML
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(true)}
+                  className={`px-4 py-2 text-sm font-medium transition ${
+                    showPreview
+                      ? "text-white border-b-2 border-white"
+                      : "text-zinc-400 hover:text-zinc-300"
+                  }`}
+                >
+                  Preview
+                </button>
+              </div>
+
+              {/* Content */}
+              {!showPreview ? (
+                <>
+                  <textarea
+                    id="html"
+                    required
+                    rows={12}
+                    value={formData.html}
+                    onChange={(e) =>
+                      setFormData({ ...formData, html: e.target.value })
+                    }
+                    className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-zinc-600 focus:border-transparent font-mono text-sm"
+                    placeholder="<html>
 <body>
   <h1>Hello {{name}}!</h1>
   <p>Your email content here...</p>
 </body>
 </html>"
-              />
-              <p className="text-xs text-zinc-500 mt-1">
-                Write HTML or paste from your email builder
-              </p>
+                  />
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Write HTML or paste from your email builder
+                  </p>
+                </>
+              ) : (
+                <div className="bg-white p-6 rounded-lg border border-zinc-700 min-h-[16rem]">
+                  {formData.html ? (
+                    <>
+                      {formData.subject && (
+                        <div className="text-sm text-zinc-600 mb-4 pb-4 border-b border-zinc-200">
+                          <strong>Subject:</strong> {formData.subject}
+                        </div>
+                      )}
+                      <div dangerouslySetInnerHTML={{ __html: formData.html }} />
+                      {formData.signature && (
+                        <div className="mt-6 pt-6 border-t border-zinc-200">
+                          <div dangerouslySetInnerHTML={{ __html: formData.signature }} />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-zinc-400 text-sm">No content yet. Start typing in the Edit HTML tab.</p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>

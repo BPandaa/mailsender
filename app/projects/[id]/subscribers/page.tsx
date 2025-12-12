@@ -115,6 +115,25 @@ export default function SubscribersPage() {
     }
   };
 
+  const handleToggleStatus = async (subscriberId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(
+        `/api/projects/${projectId}/subscribers/${subscriberId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subscribed: !currentStatus }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to update subscriber");
+
+      await fetchSubscribers();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    }
+  };
+
   const handleDelete = async (subscriberId: string) => {
     if (!confirm("Are you sure you want to delete this subscriber?")) return;
 
@@ -328,26 +347,39 @@ export default function SubscribersPage() {
                         {subscriber.name || "-"}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        <button
+                          onClick={() => handleToggleStatus(subscriber.id, subscriber.subscribed)}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition cursor-pointer hover:opacity-80 ${
                             subscriber.subscribed
                               ? "bg-green-500/10 text-green-400 border border-green-500/20"
                               : "bg-zinc-800 text-zinc-400 border border-zinc-700"
                           }`}
                         >
-                          {subscriber.subscribed ? "Active" : "Unsubscribed"}
-                        </span>
+                          {subscriber.subscribed ? "Active" : "Inactive"}
+                        </button>
                       </td>
                       <td className="px-6 py-4 text-sm text-zinc-400">
                         {new Date(subscriber.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-sm text-right">
-                        <button
-                          onClick={() => handleDelete(subscriber.id)}
-                          className="text-red-400 hover:text-red-300 font-medium"
-                        >
-                          Delete
-                        </button>
+                        <div className="flex items-center justify-end gap-3">
+                          <button
+                            onClick={() => handleToggleStatus(subscriber.id, subscriber.subscribed)}
+                            className={`font-medium transition ${
+                              subscriber.subscribed
+                                ? "text-zinc-400 hover:text-zinc-300"
+                                : "text-green-400 hover:text-green-300"
+                            }`}
+                          >
+                            {subscriber.subscribed ? "Deactivate" : "Activate"}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(subscriber.id)}
+                            className="text-red-400 hover:text-red-300 font-medium"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))

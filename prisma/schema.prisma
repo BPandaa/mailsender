@@ -20,6 +20,7 @@ model Project {
   id          String       @id @default(cuid())
   name        String
   description String?
+  signature   String?      @db.Text // Email signature with HTML/images
   userId      String
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime     @default(now())

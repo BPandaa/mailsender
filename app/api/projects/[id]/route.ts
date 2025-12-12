@@ -91,6 +91,51 @@ export async function PUT(
   }
 }
 
+// PATCH /api/projects/[id] - Partially update a project (e.g., signature)
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+
+    // Check if project exists and belongs to user
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id: id,
+        userId: session.user.id,
+      },
+    });
+
+    if (!existingProject) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    // Update only the fields provided in the request
+    const project = await prisma.project.update({
+      where: {
+        id: id,
+      },
+      data: body,
+    });
+
+    return NextResponse.json({ project });
+  } catch (error) {
+    console.error("Patch project error:", error);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE /api/projects/[id] - Delete a project
 export async function DELETE(
   request: Request,

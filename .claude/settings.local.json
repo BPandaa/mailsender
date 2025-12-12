@@ -36,7 +36,8 @@
       "Bash(powershell -command \"Get-Content ''app\\api\\webhooks\\resend\\route.ts'' | Select-Object -Last 20\")",
       "Bash(DATABASE_URL=\"postgresql://postgres.uxgqagivezeedhevikmd:Fkabbouch0000!@db.uxgqagivezeedhevikmd.supabase.co:5432/postgres\" npx prisma db push:*)",
       "Bash(where:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(timeout /t 5)"
     ],
     "deny": [],
     "ask": []

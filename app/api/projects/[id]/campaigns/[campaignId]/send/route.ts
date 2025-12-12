@@ -30,11 +30,14 @@ export async function POST(
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Get campaign
+    // Get campaign with project (to get signature)
     const campaign = await prisma.campaign.findFirst({
       where: {
         id: campaignId,
         projectId: id,
+      },
+      include: {
+        project: true,
       },
     });
 
@@ -91,8 +94,13 @@ export async function POST(
         });
 
         // Prepare email content with personalization
-        const emailHtml = personalizeContent(campaign.content, subscriber);
+        let emailHtml = personalizeContent(campaign.content, subscriber);
         const emailSubject = personalizeContent(campaign.subject, subscriber);
+
+        // Append signature if exists
+        if (campaign.project.signature) {
+          emailHtml = emailHtml + campaign.project.signature;
+        }
 
         // Send email with Resend's native tracking
         const result = await sendEmail({

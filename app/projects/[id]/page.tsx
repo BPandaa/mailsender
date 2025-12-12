@@ -97,23 +97,31 @@ export default async function ProjectDetail({
       {/* Header */}
       <header className="bg-black border-b border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-start gap-4">
-            <Link
-              href="/"
-              className="text-zinc-400 hover:text-white transition pt-1"
-            >
-              ← Projects
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-white">
-                {project.name}
-              </h1>
-              {project.description && (
-                <p className="text-zinc-400 text-sm mt-1">
-                  {project.description}
-                </p>
-              )}
+          <div className="flex items-center justify-between">
+            <div className="flex items-start gap-4">
+              <Link
+                href="/"
+                className="text-zinc-400 hover:text-white transition pt-1"
+              >
+                ← Projects
+              </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-white">
+                  {project.name}
+                </h1>
+                {project.description && (
+                  <p className="text-zinc-400 text-sm mt-1">
+                    {project.description}
+                  </p>
+                )}
+              </div>
             </div>
+            <Link
+              href={`/projects/${id}/settings`}
+              className="px-4 py-2 bg-zinc-800 text-white rounded-lg hover:bg-zinc-700 transition text-sm font-medium"
+            >
+              Settings
+            </Link>
           </div>
         </div>
       </header>
@@ -149,7 +157,7 @@ export default async function ProjectDetail({
         </div>
 
         {/* Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Link
             href={`/projects/${id}/subscribers`}
             className="bg-zinc-900 p-6 rounded-lg border border-zinc-800 hover:border-zinc-700 transition group"
@@ -170,6 +178,17 @@ export default async function ProjectDetail({
             </h3>
             <p className="text-zinc-400 text-sm">
               Create and manage email campaigns
+            </p>
+          </Link>
+          <Link
+            href={`/projects/${id}/inbox`}
+            className="bg-zinc-900 p-6 rounded-lg border border-zinc-800 hover:border-zinc-700 transition group"
+          >
+            <h3 className="font-semibold text-white mb-2 group-hover:text-zinc-300">
+              Inbox →
+            </h3>
+            <p className="text-zinc-400 text-sm">
+              View received emails for this project
             </p>
           </Link>
         </div>

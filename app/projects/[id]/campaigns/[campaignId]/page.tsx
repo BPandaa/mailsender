@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { SendCampaignButton } from "./SendCampaignButton";
 import { DeleteCampaignButton } from "./DeleteCampaignButton";
-import { RecentActivity } from "./RecentActivity";
 
 async function getCampaign(projectId: string, campaignId: string) {
   const campaign = await prisma.campaign.findFirst({
@@ -306,52 +305,94 @@ export default async function CampaignAnalytics({
           </div>
         </div>
 
-        {/* Recent Activity with Tabs */}
-        <RecentActivity
-          events={[
-            // Sent events
-            ...analytics.emailEvents
-              .filter((e) => e.status === "sent")
-              .map((e) => ({
-                type: "sent" as const,
-                email: e.subscriber.email,
-                time: e.sentAt,
-              })),
-            // Open events
-            ...analytics.allOpens.map((o) => {
-              const emailEvent = analytics.emailEvents.find(
-                (e) => e.id === o.emailEventId
-              );
-              return {
-                type: "open" as const,
-                email: emailEvent?.subscriber.email || "Unknown",
-                country: o.country,
-                city: o.city,
-                device: o.device,
-                browser: o.browser,
-                time: o.openedAt,
-                isBot: o.isBot,
-                isUnique: o.isUnique,
-              };
-            }),
-            // Click events
-            ...analytics.allClicks.map((c) => {
-              const emailEvent = analytics.emailEvents.find(
-                (e) => e.id === c.emailEventId
-              );
-              return {
-                type: "click" as const,
-                email: emailEvent?.subscriber.email || "Unknown",
-                country: c.country,
-                city: c.city,
-                device: c.device,
-                browser: c.browser,
-                time: c.clickedAt,
-                linkUrl: c.linkUrl,
-              };
-            }),
-          ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())}
-        />
+        {/* Recipients List */}
+        <div className="bg-zinc-900 rounded-lg border border-zinc-800 mb-8">
+          <div className="p-6 border-b border-zinc-800">
+            <h2 className="text-lg font-semibold text-white">
+              Recipients ({analytics.emailEvents.length})
+            </h2>
+            <p className="text-sm text-zinc-400 mt-1">
+              All email addresses this campaign was sent to
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-zinc-800/50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                    Opened
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                    Clicked
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                    Sent At
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800">
+                {analytics.emailEvents.map((event) => {
+                  const hasOpened = event.opens.length > 0;
+                  const hasClicked = event.clicks.length > 0;
+                  return (
+                    <tr key={event.id} className="hover:bg-zinc-800/50 transition">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                        {event.subscriber.email}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">
+                        {event.subscriber.name || "-"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                            event.status === "delivered"
+                              ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                              : event.status === "failed"
+                              ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                              : "bg-zinc-800 text-zinc-300 border border-zinc-700"
+                          }`}
+                        >
+                          {event.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {hasOpened ? (
+                          <span className="text-green-400">
+                            ✓ {event.opens.length}x
+                          </span>
+                        ) : (
+                          <span className="text-zinc-500">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {hasClicked ? (
+                          <span className="text-blue-400">
+                            ✓ {event.clicks.length}x
+                          </span>
+                        ) : (
+                          <span className="text-zinc-500">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-400">
+                        {new Date(event.sentAt).toLocaleString()}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </main>
     </div>
   );

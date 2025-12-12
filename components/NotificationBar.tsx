@@ -19,6 +19,16 @@ export default function NotificationBar() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Load dismissed notifications from localStorage
+    const stored = localStorage.getItem("dismissedNotifications");
+    if (stored) {
+      try {
+        setDismissed(new Set(JSON.parse(stored)));
+      } catch (e) {
+        console.error("Failed to parse dismissed notifications:", e);
+      }
+    }
+
     fetchNotifications();
     // Poll every 30 seconds for new notifications
     const interval = setInterval(fetchNotifications, 30000);
@@ -40,7 +50,13 @@ export default function NotificationBar() {
   };
 
   const dismissNotification = (id: string) => {
-    setDismissed(new Set([...dismissed, id]));
+    const newDismissed = new Set([...dismissed, id]);
+    setDismissed(newDismissed);
+    // Save to localStorage
+    localStorage.setItem(
+      "dismissedNotifications",
+      JSON.stringify(Array.from(newDismissed))
+    );
   };
 
   const visibleNotifications = notifications.filter(
@@ -88,7 +104,8 @@ export default function NotificationBar() {
             </div>
             <div className="flex items-center gap-2 ml-4">
               <Link
-                href="/receiving"
+                href={`/receiving/${notification.id}`}
+                onClick={() => dismissNotification(notification.id)}
                 className="text-xs bg-white text-blue-600 px-3 py-1 rounded hover:bg-blue-50 transition font-medium"
               >
                 View

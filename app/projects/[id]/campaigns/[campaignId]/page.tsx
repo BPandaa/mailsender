@@ -420,9 +420,10 @@ export default async function CampaignAnalytics({
           ) : (
             <div className="divide-y divide-zinc-800">
               {analytics.replies.map((reply) => (
-                <div
+                <Link
                   key={reply.id}
-                  className="p-6 hover:bg-zinc-800/50 transition"
+                  href={`/receiving/${reply.resendId}`}
+                  className="p-6 hover:bg-zinc-800/50 transition block group"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -434,7 +435,7 @@ export default async function CampaignAnalytics({
                           {reply.fromName || reply.fromEmail}
                         </span>
                       </div>
-                      <h3 className="text-sm text-zinc-300 mb-1">
+                      <h3 className="text-sm text-zinc-300 mb-1 group-hover:text-white transition">
                         {reply.subject}
                       </h3>
                       {reply.textContent && (
@@ -443,16 +444,19 @@ export default async function CampaignAnalytics({
                         </p>
                       )}
                     </div>
-                    <div className="text-right ml-4">
-                      <div className="text-xs text-zinc-400">
+                    <div className="text-right ml-4 flex-shrink-0">
+                      <div className="text-xs text-zinc-400 mb-2">
                         {new Date(reply.receivedAt).toLocaleDateString()}
                       </div>
-                      <div className="text-xs text-zinc-500">
+                      <div className="text-xs text-zinc-500 mb-2">
                         {new Date(reply.receivedAt).toLocaleTimeString()}
+                      </div>
+                      <div className="text-xs text-blue-400 group-hover:text-blue-300 transition">
+                        View Full Email →
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}

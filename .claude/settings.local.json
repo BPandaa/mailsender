@@ -37,7 +37,9 @@
       "Bash(DATABASE_URL=\"postgresql://postgres.uxgqagivezeedhevikmd:Fkabbouch0000!@db.uxgqagivezeedhevikmd.supabase.co:5432/postgres\" npx prisma db push:*)",
       "Bash(where:*)",
       "Bash(npx tsx:*)",
-      "Bash(timeout /t 5)"
+      "Bash(timeout /t 5)",
+      "Bash(DATABASE_URL=\"postgresql://postgres.uxgqagivezeedhevikmd:Fkabbouch0000!@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1\" npx prisma db push:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres.uxgqagivezeedhevikmd:Fkabbouch0000!@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true\" npx prisma db push:*)"
     ],
     "deny": [],
     "ask": []
